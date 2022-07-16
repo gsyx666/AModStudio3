@@ -1,6 +1,4 @@
-package manoj.ui;
-
-import com.formdev.flatlaf.FlatDarkLaf;
+package mbpcm.ui;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicLabelUI;

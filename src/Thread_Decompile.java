@@ -2,7 +2,6 @@ import brut.androlib.ApkDecoder;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +34,7 @@ public class Thread_Decompile extends Thread{
                 }
             }
             itctl.onProgress("task",-1,"Merging..");
-            manoj.splitMerger.MergeSplitAPK(basePath,otherFolders.toArray(new String[0]));
+            mbpcm.splitMerger.MergeSplitAPK(basePath,otherFolders.toArray(new String[0]));
             itctl.onProgress("task_finish",basePath,"DECOMPILER");
             addToRecentProject(basePath);
             //removing non useful dirs.

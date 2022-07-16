@@ -1,4 +1,4 @@
-package manoj.customViews;
+package mbpcm.customViews;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;

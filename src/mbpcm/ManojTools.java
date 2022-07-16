@@ -1,16 +1,14 @@
-package manoj;
+package mbpcm;
 
 import brut.androlib.Androlib;
 import brut.androlib.ApkDecoder;
 import brut.androlib.ApkOptions;
 import jadx.api.JadxArgs;
 import jadx.api.JadxDecompiler;
-import jadx.core.Jadx;
 import org.jf.smali.Smali;
 import org.jf.smali.SmaliOptions;
 
 import java.io.File;
-import java.io.IOException;
 
 public class ManojTools {
     public static boolean decompileAPk(String inputFilePath,String outputDirPath) {

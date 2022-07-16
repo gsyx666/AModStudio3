@@ -1,4 +1,4 @@
-package manoj;
+package mbpcm;
 
 public class manojTest {
     public static void main(String[] args){

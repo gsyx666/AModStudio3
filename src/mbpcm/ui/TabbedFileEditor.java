@@ -1,4 +1,4 @@
-package manoj.ui;
+package mbpcm.ui;
 
 import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -9,8 +9,6 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Path2D;

@@ -1,7 +1,7 @@
 import com.formdev.flatlaf.FlatDarkLaf;
-import manoj.customViews.FileSystemModel;
-import manoj.ui.ManojUI;
-import manoj.ui.TabbedFileEditor;
+import mbpcm.customViews.FileSystemModel;
+import mbpcm.ui.ManojUI;
+import mbpcm.ui.TabbedFileEditor;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 
