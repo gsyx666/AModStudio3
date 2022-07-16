@@ -1,0 +1,10 @@
+<!-- Style that all regions will use -->
+<style id="backingStyle">
+    <!-- Make all the regions opaque-->
+    <opaque value="TRUE"/>
+    <font name="Dialog" size="14"/>
+    <state>
+        <color value="#D8D987" type="BACKGROUND"/>
+        <color value="RED" type="FOREGROUND"/>
+    </state>
+</style>

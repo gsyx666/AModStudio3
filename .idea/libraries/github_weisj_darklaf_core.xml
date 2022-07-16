@@ -1,0 +1,25 @@
+<component name="libraryTable">
+  <library name="github.weisj.darklaf.core" type="repository">
+    <properties maven-id="com.github.weisj:darklaf-core:3.0.0" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/darklaf-core/3.0.0/darklaf-core-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/darklaf-theme/3.0.0/darklaf-theme-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/darklaf-theme-spec/3.0.0/darklaf-theme-spec-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/darklaf-property-loader/3.0.0/darklaf-property-loader-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/swing-extensions-visual-padding/0.1.3/swing-extensions-visual-padding-0.1.3.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/darklaf-iconset/3.0.0/darklaf-iconset-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/darklaf-utils/3.0.0/darklaf-utils-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/darklaf-compatibility/3.0.0/darklaf-compatibility-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/darklaf-native-utils/3.0.0/darklaf-native-utils-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/darklaf-platform-base/3.0.0/darklaf-platform-base-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/darklaf-platform-decorations/3.0.0/darklaf-platform-decorations-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/darklaf-platform-preferences/3.0.0/darklaf-platform-preferences-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/darklaf-windows/3.0.0/darklaf-windows-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/darklaf-macos/3.0.0/darklaf-macos-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/swing-extensions-laf-support/0.1.3/swing-extensions-laf-support-0.1.3.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/weisj/jsvg/0.0.1/jsvg-0.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

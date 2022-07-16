@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jadx-plugins-api-1.4.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jadx-plugins-api-1.4.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
