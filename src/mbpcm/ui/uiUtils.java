@@ -1,5 +1,7 @@
 package mbpcm.ui;
 
+import com.formdev.flatlaf.ui.FlatToggleButtonUI;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
@@ -63,11 +65,11 @@ public class uiUtils {
         jButton.setBackground(UIManager.getColor("Panel.background"));
         return jButton;
     }
-    public static JButton getJToggleButton(String text){
-        JButton jButton = new JButton(text);
+    public static JToggleButton getJToggleButton(String text){
+        JToggleButton jButton = new JToggleButton(text);
         jButton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
         //jButton.setBackground(UIManager.getColor("Panel.background"));
-        jButton.setMargin(new Insets(0,5,0,5));
+        jButton.setMargin(new Insets(0,5,0,5));;
         return jButton;
     }
     public static Component getComponentByName(Container parent,String name) {

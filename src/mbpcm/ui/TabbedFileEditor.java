@@ -4,20 +4,22 @@ import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.fife.ui.rtextarea.SearchContext;
+import org.fife.ui.rtextarea.SearchEngine;
+import org.fife.ui.rtextarea.SearchResult;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.geom.Path2D;
-import java.awt.geom.RoundRectangle2D;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import static javax.swing.Box.createHorizontalStrut;
@@ -69,11 +71,18 @@ public class TabbedFileEditor extends JTabbedPane {
         String fileExtension = getExtension(filepath).toLowerCase();
         RSyntaxTextArea rSyntaxTextArea = new RSyntaxTextArea();
 
-        rSyntaxTextArea.setCurrentLineHighlightColor(Color.BLACK);
+
+
         if(syntaxMap.containsKey(fileExtension)) {
             rSyntaxTextArea.setSyntaxEditingStyle(syntaxMap.get(fileExtension));
         }
         theme.apply(rSyntaxTextArea);
+        rSyntaxTextArea.setCurrentLineHighlightColor(Color.BLACK);
+        //rSyntaxTextArea.setMarkOccurrencesColor(Color.blue);
+        rSyntaxTextArea.setSelectionColor(Color.BLUE);
+        rSyntaxTextArea.setMarkAllHighlightColor(new Color(0x237F8A));
+        //rSyntaxTextArea.setSelectedTextColor(Color.BLUE);
+        //rSyntaxTextArea.setUseSelectedTextColor(true);
         if(stringsrc) {
             rSyntaxTextArea.setText(filecontent);
         }else{
@@ -100,7 +109,7 @@ public class TabbedFileEditor extends JTabbedPane {
         rSyntaxTextArea.setFont(font);
         RTextScrollPane rTextScrollPane = new RTextScrollPane(rSyntaxTextArea);
         JPanel tabContentPanel = new JPanel(new BorderLayout());
-        JPanel searchPanel = getSearchPannel();
+        JPanel searchPanel = getSearchPannel(rSyntaxTextArea);
         //searchPanel.setVisible(false);
 
         searchPanel.setPreferredSize(new Dimension(Integer.MAX_VALUE,25));
@@ -118,6 +127,8 @@ public class TabbedFileEditor extends JTabbedPane {
                         JTextField jTextField = (JTextField) getComponentByName(searchPanel,"txtSearch");
                         if(jTextField!=null){
                             jTextField.requestFocusInWindow();
+                            jTextField.setText((String)rSyntaxTextArea.getClientProperty("lastS"));
+                            jTextField.selectAll();
                         }
                     }
                 },
@@ -159,6 +170,126 @@ public class TabbedFileEditor extends JTabbedPane {
         } catch (IOException e) {
             return "";
         }
+    }
+
+    private String getExtension(String fileName){
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            return fileName.substring(i+1);
+        }else{ //extensionless file.
+            return fileName.substring(fileName.lastIndexOf("\\") +1 );
+        }
+    }
+    private JPanel getSearchPannel(RSyntaxTextArea rt){
+        Color themeColor = new Color(69,73,74);
+        JPanel jPanel = new JPanel(new BorderLayout());
+        JPanel searchBox = new JPanel();
+        JPanel resultBox = new JPanel();
+
+        //jPanel.setLayout(new BoxLayout(jPanel,BoxLayout.X_AXIS));
+        searchBox.setLayout(new BoxLayout(searchBox,BoxLayout.X_AXIS));
+        resultBox.setLayout(new BoxLayout(resultBox,BoxLayout.X_AXIS));
+        searchBox.setPreferredSize(new Dimension(300,Integer.MAX_VALUE));
+        searchBox.setMaximumSize(new Dimension(300,Integer.MAX_VALUE));
+        searchBox.setBackground(themeColor);
+        JLabel resultLabel = new JLabel("0 results");
+        // Search Box JPanel
+        Color backColor = searchBox.getBackground();
+        JToggleButton Cc = getJToggleButton("Cc");Cc.setBackground(backColor);
+        JToggleButton W = getJToggleButton("W");W.setBackground(backColor);
+        JToggleButton regex = getJToggleButton(" . * ");regex.setBackground(backColor);
+        JTextField searchTextBox = new JTextField();
+        // Listen for changes in the text
+        searchTextBox.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {warn();}
+            public void removeUpdate(DocumentEvent e) {warn();}
+            public void insertUpdate(DocumentEvent e) {warn();}
+            public void warn() {
+                rt.setCaretPosition(0);
+                rt.putClientProperty("curr",0);
+               resultLabel.setText(findText(rt,searchTextBox.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true));
+
+            }
+        });
+        searchTextBox.setName("txtSearch");
+        searchTextBox.setFocusable(true);
+        searchTextBox.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
+        searchTextBox.setBackground(backColor);
+
+        searchBox.add(searchTextBox);
+        searchBox.add(Cc);
+        searchBox.add(W);
+        searchBox.add(regex);
+        jPanel.add(searchBox,BorderLayout.WEST);
+
+        //Result Box JPanel
+
+
+        resultLabel.setMinimumSize(new Dimension(50,Integer.MAX_VALUE));
+
+        JButton sUp = getJButton("↑");
+        sUp.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               resultLabel.setText(findText(rt,searchTextBox.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),false));
+            }
+        });
+        JButton sDw = getJButton("↓");
+        sDw.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resultLabel.setText(findText(rt,searchTextBox.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true));
+            }
+        });
+        JButton filter = getJButton("Filter");
+        resultBox.add(createHorizontalStrut(20));
+        resultBox.add(resultLabel);
+        resultBox.add(sDw);
+        resultBox.add(sUp);
+        resultBox.add(filter);
+        jPanel.add(resultBox,BorderLayout.CENTER);
+
+        //Close Button
+        JButton close = new JButton("x");
+        close.setBorder(BorderFactory.createEmptyBorder());
+        close.setBackground(jPanel.getBackground());
+        close.setForeground(new Color(0xB0B0F8));
+        //close.addActionListener(e -> jPanel.setVisible(false));
+        close.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jPanel.setVisible(false);
+                rt.putClientProperty("lastS",searchTextBox.getText());
+                searchTextBox.setText("");
+            }
+        });
+        jPanel.add(close,BorderLayout.EAST);
+
+
+        return jPanel;
+    }
+    public static String findText(RSyntaxTextArea rt,String what,boolean matchCase,boolean regex,boolean wholeWord,boolean forward){
+        SearchContext context = new SearchContext();
+        context.setSearchFor(what);
+        context.setMatchCase(matchCase);
+        context.setRegularExpression(regex);
+        context.setSearchForward(forward);
+        context.setWholeWord(wholeWord);
+        SearchResult searchResult = SearchEngine.find(rt, context);
+
+        int curr = (int)rt.getClientProperty("curr");
+        if(forward) {
+            if(curr<searchResult.getMarkedCount())
+                curr++;
+        }else{
+            if(curr>1)
+                curr--;
+        }
+        rt.putClientProperty("curr",curr);
+
+        return curr + "/" + searchResult.getMarkedCount() + " results";
+        //System.out.println(searchResult.getMarkedCount());
     }
     private void fillHashMap(){
         syntaxMap.put("txt","text/plain");
@@ -218,70 +349,6 @@ public class TabbedFileEditor extends JTabbedPane {
         syntaxMap.put("unix","text/unix");
 
     }
-    private String getExtension(String fileName){
-        int i = fileName.lastIndexOf('.');
-        if (i > 0) {
-            return fileName.substring(i+1);
-        }else{ //extensionless file.
-            return fileName.substring(fileName.lastIndexOf("\\") +1 );
-        }
-    }
-    private JPanel getSearchPannel(){
-        Color themeColor = new Color(69,73,74);
-        JPanel jPanel = new JPanel(new BorderLayout());
-        JPanel searchBox = new JPanel();
-        JPanel resultBox = new JPanel();
-
-        //jPanel.setLayout(new BoxLayout(jPanel,BoxLayout.X_AXIS));
-        searchBox.setLayout(new BoxLayout(searchBox,BoxLayout.X_AXIS));
-        resultBox.setLayout(new BoxLayout(resultBox,BoxLayout.X_AXIS));
-        searchBox.setPreferredSize(new Dimension(300,Integer.MAX_VALUE));
-        searchBox.setMaximumSize(new Dimension(300,Integer.MAX_VALUE));
-        searchBox.setBackground(themeColor);
-
-        // Search Box JPanel
-        JTextField searchTextBox = new JTextField();
-        searchTextBox.setName("txtSearch");
-        searchTextBox.setFocusable(true);
-        searchTextBox.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-        Color backColor = searchBox.getBackground();
-        searchTextBox.setBackground(backColor);
-        JButton Cc = getJToggleButton("Cc");Cc.setBackground(backColor);
-        JButton W = getJToggleButton("W");W.setBackground(backColor);
-        JButton regex = getJToggleButton(" . * ");regex.setBackground(backColor);
-        searchBox.add(searchTextBox);
-        searchBox.add(Cc);
-        searchBox.add(W);
-        searchBox.add(regex);
-        jPanel.add(searchBox,BorderLayout.WEST);
-
-        //Result Box JPanel
-
-        JLabel resultLabel = new JLabel("0 results");
-        resultLabel.setMinimumSize(new Dimension(50,Integer.MAX_VALUE));
-
-        JButton sUp = getJButton("↑");
-        JButton sDw = getJButton("↓");
-        JButton filter = getJButton("Filter");
-        resultBox.add(createHorizontalStrut(20));
-        resultBox.add(resultLabel);
-        resultBox.add(sUp);
-        resultBox.add(sDw);
-        resultBox.add(filter);
-        jPanel.add(resultBox,BorderLayout.CENTER);
-
-        //Close Button
-        JButton close = new JButton("x");
-        close.setBorder(BorderFactory.createEmptyBorder());
-        close.setBackground(jPanel.getBackground());
-        close.setForeground(new Color(0xB0B0F8));
-        close.addActionListener(e -> jPanel.setVisible(false));
-        jPanel.add(close,BorderLayout.EAST);
-
-
-        return jPanel;
-    }
-
 
 
 
