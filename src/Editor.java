@@ -7,10 +7,7 @@ import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -28,7 +25,7 @@ class Editor {
     mod_adbUtils adbUtils;
     mod_packageUtils packageUtils;
     mod_MainMenu mainMenu;
-    subc_LogWindow logwindow;
+    window_log logwindow;
     Listener_StatusBarTasks statusBarTasks;
     //JEditorPane taSmali;
     subc_EditorWindow taSmali;
@@ -42,6 +39,7 @@ class Editor {
     HashMap<String,String> vars = new HashMap<>();
     ManojUI ui;
     TabbedFileEditor tabbedFileEditor;
+    JTextArea LogWindow;
     //boolean developmentMode = true;
     public static void main(String[] args) {
         FlatDarkLaf.setup();
@@ -69,6 +67,7 @@ class Editor {
         fileTree = new JTree();
         statusLabel = new JLabel("status");
         progressBar = new JProgressBar();
+        LogWindow = new JTextArea();
 
     }
 
@@ -77,7 +76,7 @@ class Editor {
         apkUtils = new mod_apkUtils(this);
         adbUtils = new mod_adbUtils(this);
         packageUtils = new mod_packageUtils(this);
-        //logwindow = new JTextAreaOutputStream();
+        logwindow = new window_log();
         mainMenu = new mod_MainMenu(this);
         statusBarTasks = new Listener_StatusBarTasks(this);
     }
@@ -145,7 +144,7 @@ class Editor {
         ui.leftBar.add(fileTreeToggle);
 
 
-        JToggleButton taJavaToggle = ManojUI.getVerticalButton("Java",false);
+        JToggleButton taJavaToggle = ManojUI.getVerticalButton("Java",true);
         taJavaToggle.addActionListener(e -> {
             if(!taJavaToggle.isSelected()){
                 taJavaToggle.putClientProperty("dPos",ui.getRightPane().getDividerLocation());
@@ -160,10 +159,18 @@ class Editor {
             ui.f.setVisible(true);
         });
         taJavaToggle.setSelected(true);
-        ui.rightBar.add(taJavaToggle);
+        ui.leftBar.add(taJavaToggle);
         tabbedFileEditor.addFile("Welcome","This is AMod Studio v1.5\nAuthor: ManojBhakarPCM");
 
         initPlugins();
+
+
+        ui.leftBar.add(logwindow.getButton());
+        ui.setBottomItem(logwindow.getWindow());
+
+        ui.rightBar.setVisible(false);
+        ui.bottomBar.setVisible(false);
+
         ui.f.setVisible(true);
         //SwingUtilities.invokeLater(() -> apkUtils.getDevices());
 
