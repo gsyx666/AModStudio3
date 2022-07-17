@@ -5,7 +5,11 @@ import com.formdev.flatlaf.ui.FlatToggleButtonUI;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
+import javax.swing.plaf.basic.BasicToggleButtonUI;
+import javax.swing.plaf.metal.MetalToggleButtonUI;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
@@ -69,7 +73,7 @@ public class uiUtils {
         JToggleButton jButton = new JToggleButton(text);
         jButton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
         //jButton.setBackground(UIManager.getColor("Panel.background"));
-        jButton.setMargin(new Insets(0,5,0,5));;
+        jButton.setMargin(new Insets(0,5,0,5));
         return jButton;
     }
     public static Component getComponentByName(Container parent,String name) {

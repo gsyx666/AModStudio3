@@ -28,7 +28,6 @@ import static mbpcm.ui.uiUtils.*;
 //TODO: Smooth Scroll.
 //TODO: BUG: JetBrains Mono Font Not Loading
 //TODO: three dots.
-//TODO: Find and Replace
 //TODO: Upper Pane saprator disable.
 //TODO: Syntax Highlighting for XML etc.
 //TODO: BUG: binary files are not loaded.
@@ -110,7 +109,7 @@ public class TabbedFileEditor extends JTabbedPane {
         RTextScrollPane rTextScrollPane = new RTextScrollPane(rSyntaxTextArea);
         JPanel tabContentPanel = new JPanel(new BorderLayout());
         JPanel searchPanel = getSearchPannel(rSyntaxTextArea);
-        //searchPanel.setVisible(false);
+        searchPanel.setVisible(false);
 
         searchPanel.setPreferredSize(new Dimension(Integer.MAX_VALUE,25));
         searchPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,25));
@@ -181,14 +180,17 @@ public class TabbedFileEditor extends JTabbedPane {
         }
     }
     private JPanel getSearchPannel(RSyntaxTextArea rt){
+        rt.putClientProperty("curr",0);
         Color themeColor = new Color(69,73,74);
         JPanel jPanel = new JPanel(new BorderLayout());
         JPanel searchBox = new JPanel();
         JPanel resultBox = new JPanel();
+        JPanel replaceBox = new JPanel();
 
         //jPanel.setLayout(new BoxLayout(jPanel,BoxLayout.X_AXIS));
         searchBox.setLayout(new BoxLayout(searchBox,BoxLayout.X_AXIS));
         resultBox.setLayout(new BoxLayout(resultBox,BoxLayout.X_AXIS));
+        replaceBox.setLayout(new BoxLayout(replaceBox,BoxLayout.X_AXIS));
         searchBox.setPreferredSize(new Dimension(300,Integer.MAX_VALUE));
         searchBox.setMaximumSize(new Dimension(300,Integer.MAX_VALUE));
         searchBox.setBackground(themeColor);
@@ -199,7 +201,7 @@ public class TabbedFileEditor extends JTabbedPane {
         JToggleButton W = getJToggleButton("W");W.setBackground(backColor);
         JToggleButton regex = getJToggleButton(" . * ");regex.setBackground(backColor);
         JTextField searchTextBox = new JTextField();
-        // Listen for changes in the text
+
         searchTextBox.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {warn();}
             public void removeUpdate(DocumentEvent e) {warn();}
@@ -210,6 +212,30 @@ public class TabbedFileEditor extends JTabbedPane {
                resultLabel.setText(findText(rt,searchTextBox.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true));
 
             }
+        });
+        searchTextBox.addActionListener(e -> {
+            rt.setCaretPosition(0);
+            rt.putClientProperty("curr",0);
+            resultLabel.setText(findText(rt,searchTextBox.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true));
+
+        });
+        Cc.addActionListener(e -> {
+            rt.setCaretPosition(0);
+            rt.putClientProperty("curr",0);
+            resultLabel.setText(findText(rt,searchTextBox.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true));
+
+        });
+        W.addActionListener(e -> {
+            rt.setCaretPosition(0);
+            rt.putClientProperty("curr",0);
+            resultLabel.setText(findText(rt,searchTextBox.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true));
+
+        });
+        regex.addActionListener(e -> {
+            rt.setCaretPosition(0);
+            rt.putClientProperty("curr",0);
+            resultLabel.setText(findText(rt,searchTextBox.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true));
+            W.setEnabled(!regex.isSelected());
         });
         searchTextBox.setName("txtSearch");
         searchTextBox.setFocusable(true);
@@ -229,19 +255,9 @@ public class TabbedFileEditor extends JTabbedPane {
         resultLabel.setMinimumSize(new Dimension(50,Integer.MAX_VALUE));
 
         JButton sUp = getJButton("↑");
-        sUp.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-               resultLabel.setText(findText(rt,searchTextBox.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),false));
-            }
-        });
+        sUp.addActionListener(e -> resultLabel.setText(findText(rt,searchTextBox.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),false)));
         JButton sDw = getJButton("↓");
-        sDw.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                resultLabel.setText(findText(rt,searchTextBox.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true));
-            }
-        });
+        sDw.addActionListener(e -> resultLabel.setText(findText(rt,searchTextBox.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true)));
         JButton filter = getJButton("Filter");
         resultBox.add(createHorizontalStrut(20));
         resultBox.add(resultLabel);
@@ -250,7 +266,31 @@ public class TabbedFileEditor extends JTabbedPane {
         resultBox.add(filter);
         jPanel.add(resultBox,BorderLayout.CENTER);
 
-        //Close Button
+        //Replace Box.
+        JTextField inputReplace = new JTextField();
+        inputReplace.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        JButton replaceSingle = getJButton("Replace");
+        replaceSingle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resultLabel.setText(replaceText(rt,searchTextBox.getText(),inputReplace.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true));
+            }
+        });
+        JButton replaceAll = getJButton("ReplaceAll");
+        replaceAll.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resultLabel.setText(replaceAll(rt,searchTextBox.getText(),inputReplace.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true));
+            }
+        });
+        replaceBox.add(inputReplace);
+        replaceBox.add(replaceSingle);
+        replaceBox.add(replaceAll);
+
+
+
+
+        //Close Button makubha makusa
         JButton close = new JButton("x");
         close.setBorder(BorderFactory.createEmptyBorder());
         close.setBackground(jPanel.getBackground());
@@ -264,7 +304,11 @@ public class TabbedFileEditor extends JTabbedPane {
                 searchTextBox.setText("");
             }
         });
-        jPanel.add(close,BorderLayout.EAST);
+        replaceBox.add(close);
+        replaceBox.setPreferredSize(new Dimension(400,Integer.MAX_VALUE));
+        replaceBox.setMaximumSize(new Dimension(400,Integer.MAX_VALUE));
+        replaceBox.setBackground(themeColor);
+        jPanel.add(replaceBox,BorderLayout.EAST);
 
 
         return jPanel;
@@ -288,7 +332,33 @@ public class TabbedFileEditor extends JTabbedPane {
         }
         rt.putClientProperty("curr",curr);
 
-        return curr + "/" + searchResult.getMarkedCount() + " results";
+        return curr + "/" + searchResult.getMarkedCount();
+        //System.out.println(searchResult.getMarkedCount());
+    }
+    public static String replaceText(RSyntaxTextArea rt,String what,String replaceWith,boolean matchCase,boolean regex,boolean wholeWord,boolean forward){
+        SearchContext context = new SearchContext();
+        context.setSearchFor(what);
+        context.setMatchCase(matchCase);
+        context.setRegularExpression(regex);
+        context.setSearchForward(forward);
+        context.setWholeWord(wholeWord);
+        context.setReplaceWith(replaceWith);
+        SearchResult searchResult = SearchEngine.replace(rt, context);
+
+        return searchResult.getMarkedCount() + "";
+        //System.out.println(searchResult.getMarkedCount());
+    }
+    public static String replaceAll(RSyntaxTextArea rt,String what,String replaceWith,boolean matchCase,boolean regex,boolean wholeWord,boolean forward){
+        SearchContext context = new SearchContext();
+        context.setSearchFor(what);
+        context.setMatchCase(matchCase);
+        context.setRegularExpression(regex);
+        context.setSearchForward(forward);
+        context.setWholeWord(wholeWord);
+        context.setReplaceWith(replaceWith);
+        SearchResult searchResult = SearchEngine.replaceAll(rt, context);
+
+        return searchResult.getMarkedCount() + "";
         //System.out.println(searchResult.getMarkedCount());
     }
     private void fillHashMap(){
