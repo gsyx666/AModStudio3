@@ -19,26 +19,15 @@ public class mod_MainMenu extends super_MenuInterface {
         });
         mainWin.toolBar.add(Box.createHorizontalStrut(10));
         mainWin.toolBar.add(convertToJava);
-        mainWin.taSmali.registerKeyboardAction(
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        action_save();
-                        mainWin.setStatusBarTextFlash("File Saved",1);
-                    }
-                },
-                KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK) ,
-                JComponent.WHEN_FOCUSED
-        );
     }
     public void action_save(){
-        String smali = mainWin.taSmali.currentFilePath;
+        /*/String smali = mainWin.taSmali.currentFilePath;
         utils.file_put_contents(smali,mainWin.taSmali.getText());
         if(smali.endsWith(".smali")){
             convertToJava(smali);
         }else{
             mainWin.javaView.taJava.setText("");
-        }
+        }//*/
     }
     public void convertToJava(String smali){
         String dex = "C:\\Users\\MbPCM\\Desktop\\tmp.dex";
