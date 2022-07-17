@@ -1,16 +1,18 @@
 // ManojBhaskarPCM : OrhanBank v1.1 : APK Modding IDE.
 
 import com.formdev.flatlaf.FlatDarkLaf;
+import mbpcm.ui.ManojUI;
+import mbpcm.ui.TabbedFileEditor;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
-import org.fife.ui.rtextarea.RTextScrollPane;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
-import javax.swing.plaf.basic.BasicTabbedPaneUI;
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Timer;
@@ -38,21 +40,26 @@ class Editor {
     JToolBar toolBar;
     JProgressBar progressBar;
     HashMap<String,String> vars = new HashMap<>();
+    ManojUI ui;
+    TabbedFileEditor tabbedFileEditor;
     //boolean developmentMode = true;
     public static void main(String[] args) {
+        FlatDarkLaf.setup();
         thisClass = new Editor();
+
     }
     String getVersion(){
         return "AMOD Studio v1.5";
     }
     void initComponents() {
-        FlatDarkLaf.setup();
+        ui = new ManojUI();
+        tabbedFileEditor = new TabbedFileEditor();
         //FlatIntelliJLaf.setup();
         //FlatLightLaf.setup();
         //FlatDarculaLaf.setup();
-        mainWindow = new JFrame(getVersion());
-        menuBar = new JMenuBar();
-        toolBar = new JToolBar();
+        mainWindow = ui.f;
+        menuBar = ui.menuBar;
+        toolBar = ui.toolBar;
         toolBar.setMaximumSize(new Dimension(500,25));
         toolBar.setPreferredSize(new Dimension(500,25));
         //taSmali = new JEditorPane();
@@ -95,65 +102,70 @@ class Editor {
         atmf.putMapping("text/smali", "smaliSyntax");
         taSmali.setSyntaxEditingStyle("text/smali");
 
-        mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainWindow.setPreferredSize(new Dimension(1500, 800));
-        JTabbedPane tabbedPane = new JTabbedPane();
-        JComponent panel1 = makeTextPanel("Panel #1");
-        tabbedPane.addTab("Tab 1",null, new RTextScrollPane(taJava), "Does nothing");
         mainWindow.setIconImage(utils.getImageFromRes("main.png"));
-        mainWindow.setJMenuBar(menuBar);
         toolBar.setMaximumSize(new Dimension(mainWindow.getWidth(), 20));
-        mainWindow.add(toolBar, BorderLayout.NORTH);
 
         taJava.setEditable(false);
-        taJava.addCaretListener(new CaretListener() {
-            @Override
-            public void caretUpdate(CaretEvent e) {
-                String findWhat = ".line " + (taJava.getCaretLineNumber()+1) + "\n";
-                int pos = taSmali.getText().indexOf(findWhat) + findWhat.length() + 1;
-                taSmali.setCaretPosition(pos);
-                //setStatusBarTextFlash(e.getDot() + " : " + taJava.getCaretLineNumber(),2);
+
+        fileTree.setEditable(false);
+        fileTree.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    File file = (File) fileTree.getLastSelectedPathComponent();
+                    if(file!=null && file.isFile()) {
+                        tabbedFileEditor.addFile(file.getAbsolutePath());
+                    }
+                }
             }
         });
-        fileTree.setEditable(true);
+        JScrollPane spFileTree = new JScrollPane();
+        spFileTree.setBorder(BorderFactory.createEmptyBorder());
+        spFileTree.setViewportView(fileTree);
 
-        fileTree.addTreeSelectionListener(event -> {
-            File file = (File) fileTree.getLastSelectedPathComponent();
-            if(file!=null) {
-                taSmali.setFile(file.getAbsolutePath(), true);
-            }
-        });
-        initPlugins();
-        JSplitPane splitPaneEditors = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, new RTextScrollPane(taSmali), new JScrollPane(tabbedPane));
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, new JScrollPane(fileTree), new JPanel().add(splitPaneEditors));
-        splitPaneEditors.setDividerSize(4);
-        splitPane.setBorder(BorderFactory.createEmptyBorder());
-        splitPane.setDividerSize(4);
 
-        JPanel statusPanel = new JPanel();
-        statusPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-        mainWindow.add(statusPanel, BorderLayout.SOUTH);
-        statusPanel.setPreferredSize(new Dimension(mainWindow.getWidth(), 20));
-        statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
+        ui.setLeftItem(spFileTree);
+        ui.setCenterItem(tabbedFileEditor);
+        ui.setRightItem(taJava);
+
         progressBar.setPreferredSize(new Dimension(150,4));
         progressBar.setMaximumSize(new Dimension(150,4));
         progressBar.setVisible(false);
         statusLabel.setText("Everything is Ready !");
         statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        statusPanel.add(progressBar);
-        statusPanel.add(statusLabel);
 
-        mainWindow.getContentPane().add(splitPane);
+        ui.statusBar.add(progressBar);
+        ui.statusBar.add(statusLabel);
 
-        mainWindow.setVisible(true);
-        mainWindow.pack();
+        JToggleButton fileTreeToggle = ManojUI.getVerticalButton("Project",true);
+        fileTreeToggle.addActionListener(e -> {
+            //fileTree.setVisible(fileTreeToggle.isSelected());
+            spFileTree.setVisible(fileTreeToggle.isSelected());
+        });
+        fileTreeToggle.setSelected(true);
+        ui.leftBar.add(fileTreeToggle);
 
-        //taSmali.setContentType("text/html");
-        splitPane.setDividerLocation(300);
-        splitPaneEditors.setDividerLocation(splitPaneEditors.getWidth() / 2);
-        //mainWindow.show();
-        //((Runnable) () -> apkUtils.getDevices()).run();
-        SwingUtilities.invokeLater(() -> apkUtils.getDevices());
+
+        JToggleButton taJavaToggle = ManojUI.getVerticalButton("Java",false);
+        taJavaToggle.addActionListener(e -> {
+            if(!taJavaToggle.isSelected()){
+                taJavaToggle.putClientProperty("dPos",ui.getRightPane().getDividerLocation());
+            }else{
+                SwingUtilities.invokeLater(() -> {
+                    ui.getRightPane().setDividerLocation((int)taJavaToggle.getClientProperty("dPos"));
+                    ui.f.setVisible(true);
+                });
+
+            }
+            taJava.setVisible(taJavaToggle.isSelected());
+            ui.f.setVisible(true);
+        });
+        taJavaToggle.setSelected(true);
+        ui.rightBar.add(taJavaToggle);
+        tabbedFileEditor.addFile("Welcome","This is AMod Studio v1.5\nAuthor: ManojBhakarPCM");
+
+        initPlugins();
+        ui.f.setVisible(true);
+        //SwingUtilities.invokeLater(() -> apkUtils.getDevices());
 
     }
     protected JComponent makeTextPanel(String text) {
@@ -177,3 +189,13 @@ class Editor {
     }
 }
 
+ /*
+        taJava.addCaretListener(new CaretListener() {
+            @Override
+            public void caretUpdate(CaretEvent e) {
+                String findWhat = ".line " + (taJava.getCaretLineNumber()+1) + "\n";
+                int pos = taSmali.getText().indexOf(findWhat) + findWhat.length() + 1;
+                taSmali.setCaretPosition(pos);
+                //setStatusBarTextFlash(e.getDot() + " : " + taJava.getCaretLineNumber(),2);
+            }
+        });*/

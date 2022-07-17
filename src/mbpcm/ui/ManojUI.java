@@ -15,7 +15,7 @@ public class ManojUI {
     public JPanel statusBar,center,contents;
     public JPanel bottomBar,leftBar,rightBar;
     public JSplitPane spV12,spV23,spH12,spH23;
-    public JPanel southScrollPane,centerScrollPane,rightScrollPane,leftScrollPane,northScrollPane;
+    //public JPanel southScrollPane,centerScrollPane,rightScrollPane,leftScrollPane,northScrollPane;
     public JToolBar toolBar;
     public JMenuBar menuBar;
     public JFrame f;
@@ -38,34 +38,47 @@ public class ManojUI {
         center.add(contents,BorderLayout.CENTER);
 
         spV12.setBottomComponent(spV23);
-        spV23.setTopComponent(spH12);
-        spH12.setRightComponent(spH23);
+        spV23.setTopComponent(spH23);
+        spH23.setLeftComponent(spH12);
+
+        spV12.setDividerSize(0); //we are not using top panel.
 
         contents.add(spV12);
 
         f.setVisible(true);
 
     }
+    public JSplitPane getLeftPane(){
+        return spH12;
+    }
+    public JSplitPane getRightPane(){
+        return spH23;
+    }
+    public JSplitPane getBottomPane(){
+        return spV23;
+    }
     private void InitComponents(JFrame f){
         menuBar = new JMenuBar();
         toolBar = new JToolBar();
         statusBar = createHorizontalBarRoot(f.getWidth());
+        statusBar.setLayout(new BoxLayout(statusBar,BoxLayout.X_AXIS));
         center = new JPanel(new BorderLayout());
 
         bottomBar = createHorizontalBar(center.getWidth());
+        bottomBar.setLayout(new BoxLayout(bottomBar,BoxLayout.X_AXIS));
         leftBar = createVerticalBar(center.getHeight());
         rightBar = createVerticalBar(center.getHeight());
 
         contents = new JPanel(new BorderLayout());
 
-        spV12 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        spV23 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        spH12 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        spH23 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        spV12 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);//spV12.setResizeWeight(0.5);
+        spV23 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);//spV23.setResizeWeight(0.5);
+        spH12 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);//spH12.setResizeWeight(0.5);
+        spH23 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);//spH23.setResizeWeight(0.5);
 
     }
     public void setCenterItem(JComponent component){
-        spH23.setLeftComponent(component);
+        spH12.setRightComponent(component);
     }
     public void setBottomItem(JComponent component){
         spV23.setBottomComponent(component);
@@ -79,7 +92,7 @@ public class ManojUI {
     public static JPanel createVerticalBar(int height){
         JPanel statusPanel = new JPanel();
         statusPanel.setBorder(BorderFactory.createMatteBorder(0,1,0,1,new Color(50,50,50)));
-        statusPanel.add(getVerticalButton("Manoj"));
+        //statusPanel.add(getVerticalButton("Manoj"));
         statusPanel.setPreferredSize(new Dimension(22, height));
         statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.Y_AXIS));
         return statusPanel;
@@ -89,7 +102,7 @@ public class ManojUI {
     public static JPanel createHorizontalBar(int width){
         JPanel statusPanel = new JPanel();
         statusPanel.setBorder(BorderFactory.createLineBorder(new Color(50,50,50),1));
-        statusPanel.add(new JLabel("this is Horizontal Bar...."));
+        //statusPanel.add(new JLabel("this is Horizontal Bar...."));
         statusPanel.setPreferredSize(new Dimension(width, 22));
         statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.Y_AXIS));
         return statusPanel;
@@ -98,7 +111,7 @@ public class ManojUI {
     public static JPanel createHorizontalBarRoot(int width){
         JPanel statusPanel = new JPanel();
         statusPanel.setBorder(BorderFactory.createMatteBorder(0,1,1,1,new Color(50,50,50)));
-        statusPanel.add(new JLabel("      this is Horizontal Bar...."));
+        //statusPanel.add(new JLabel("      this is Horizontal Bar...."));
         statusPanel.setPreferredSize(new Dimension(width, 22));
         statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.Y_AXIS));
         return statusPanel;
@@ -106,7 +119,7 @@ public class ManojUI {
 
 
 
-    public static JToggleButton getVerticalButton(String text){
+    public static JToggleButton getVerticalButton(String text,boolean left){
         Font font = new javax.swing.plaf.FontUIResource("Calibri Light",Font.PLAIN,12);
         JToggleButton button = new JToggleButton();
         button.setUI(new MetalToggleButtonUI() {
@@ -118,7 +131,11 @@ public class ManojUI {
         button.setBackground(Color.getColor("#3C3F41"));
         button.setBorder(BorderFactory.createEmptyBorder(10,10,10,5));
         TextIcon t1 = new TextIcon(button, text, TextIcon.Layout.HORIZONTAL);
-        RotatedIcon r1 = new RotatedIcon(t1, RotatedIcon.Rotate.UP);
+        RotatedIcon.Rotate rotate = RotatedIcon.Rotate.UP;
+        if(!left){
+            rotate = RotatedIcon.Rotate.DOWN;
+        }
+        RotatedIcon r1 = new RotatedIcon(t1, rotate);
         button.setIcon(r1);
         button.setFont(font);
         return button;
