@@ -1,6 +1,8 @@
 // ManojBhaskarPCM : OrhanBank v1.1 : APK Modding IDE.
 
+import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 import mbpcm.ui.ManojUI;
 import mbpcm.ui.TabbedFileEditor;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
@@ -26,23 +28,29 @@ class Editor {
     mod_packageUtils packageUtils;
     mod_MainMenu mainMenu;
     window_log logwindow;
+    window_fileTree fileTree;
     Listener_StatusBarTasks statusBarTasks;
+    Bar_Status statusBarPanel;
     //JEditorPane taSmali;
     subc_EditorWindow taSmali;
-    subc_EditorWindow taJava;
+    window_JavaView javaView;
+    window_main mainEditor;
     JFrame mainWindow;
-    JTree fileTree;
+
     JMenuBar menuBar;
     JLabel statusLabel;
     JToolBar toolBar;
     JProgressBar progressBar;
     HashMap<String,String> vars = new HashMap<>();
     ManojUI ui;
-    TabbedFileEditor tabbedFileEditor;
+
     JTextArea LogWindow;
     //boolean developmentMode = true;
     public static void main(String[] args) {
-        FlatDarkLaf.setup();
+        //FlatDarkLaf.setup();
+        //FlatIntelliJLaf.setup();
+        //FlatLightLaf.setup();
+        FlatDarculaLaf.setup();
         thisClass = new Editor();
 
     }
@@ -51,10 +59,8 @@ class Editor {
     }
     void initComponents() {
         ui = new ManojUI();
-        tabbedFileEditor = new TabbedFileEditor();
-        //FlatIntelliJLaf.setup();
-        //FlatLightLaf.setup();
-        //FlatDarculaLaf.setup();
+        mainEditor = new window_main();
+
         mainWindow = ui.f;
         menuBar = ui.menuBar;
         toolBar = ui.toolBar;
@@ -62,9 +68,8 @@ class Editor {
         toolBar.setPreferredSize(new Dimension(500,25));
         //taSmali = new JEditorPane();
         taSmali = new subc_EditorWindow();
-        taJava = new subc_EditorWindow();
         //fSM = new FileSystemModel(new File("C:\\"));
-        fileTree = new JTree();
+
         statusLabel = new JLabel("status");
         progressBar = new JProgressBar();
         LogWindow = new JTextArea();
@@ -72,6 +77,7 @@ class Editor {
     }
 
     void initPlugins() {
+        fileTree = new window_fileTree(mainEditor.tabbedFileEditor);
         defaultMenus = new mod_defaultMenus(this);
         apkUtils = new mod_apkUtils(this);
         adbUtils = new mod_adbUtils(this);
@@ -79,6 +85,9 @@ class Editor {
         logwindow = new window_log();
         mainMenu = new mod_MainMenu(this);
         statusBarTasks = new Listener_StatusBarTasks(this);
+        javaView = new window_JavaView(ui);
+        statusBarPanel = new Bar_Status();
+
     }
 
     Editor() {
@@ -97,81 +106,39 @@ class Editor {
         //TODO: BUG: splitted apk merger not working properly.
 
         initComponents();
+        initPlugins();
+
         AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
         atmf.putMapping("text/smali", "smaliSyntax");
-        taSmali.setSyntaxEditingStyle("text/smali");
+        mainEditor.tabbedFileEditor.syntaxMap.put("smali","text/smali");
 
         mainWindow.setIconImage(utils.getImageFromRes("main.png"));
         toolBar.setMaximumSize(new Dimension(mainWindow.getWidth(), 20));
-
-        taJava.setEditable(false);
-
-        fileTree.setEditable(false);
-        fileTree.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    File file = (File) fileTree.getLastSelectedPathComponent();
-                    if(file!=null && file.isFile()) {
-                        tabbedFileEditor.addFile(file.getAbsolutePath());
-                    }
-                }
-            }
-        });
-        JScrollPane spFileTree = new JScrollPane();
-        spFileTree.setBorder(BorderFactory.createEmptyBorder());
-        spFileTree.setViewportView(fileTree);
-
-
-        ui.setLeftItem(spFileTree);
-        ui.setCenterItem(tabbedFileEditor);
-        ui.setRightItem(taJava);
-
-        progressBar.setPreferredSize(new Dimension(150,4));
-        progressBar.setMaximumSize(new Dimension(150,4));
-        progressBar.setVisible(false);
-        statusLabel.setText("Everything is Ready !");
-        statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
-
-        ui.statusBar.add(progressBar);
-        ui.statusBar.add(statusLabel);
-
-        JToggleButton fileTreeToggle = ManojUI.getVerticalButton("Project",true);
-        fileTreeToggle.addActionListener(e -> {
-            //fileTree.setVisible(fileTreeToggle.isSelected());
-            spFileTree.setVisible(fileTreeToggle.isSelected());
-        });
-        fileTreeToggle.setSelected(true);
-        ui.leftBar.add(fileTreeToggle);
-
-
-        JToggleButton taJavaToggle = ManojUI.getVerticalButton("Java",true);
-        taJavaToggle.addActionListener(e -> {
-            if(!taJavaToggle.isSelected()){
-                taJavaToggle.putClientProperty("dPos",ui.getRightPane().getDividerLocation());
-            }else{
-                SwingUtilities.invokeLater(() -> {
-                    ui.getRightPane().setDividerLocation((int)taJavaToggle.getClientProperty("dPos"));
-                    ui.f.setVisible(true);
-                });
-
-            }
-            taJava.setVisible(taJavaToggle.isSelected());
-            ui.f.setVisible(true);
-        });
-        taJavaToggle.setSelected(true);
-        ui.leftBar.add(taJavaToggle);
-        tabbedFileEditor.addFile("Welcome","This is AMod Studio v1.5\nAuthor: ManojBhakarPCM");
-
-        initPlugins();
-
-
-        ui.leftBar.add(logwindow.getButton());
-        ui.setBottomItem(logwindow.getWindow());
-
         ui.rightBar.setVisible(false);
         ui.bottomBar.setVisible(false);
 
+        ui.statusBar.add(statusBarPanel.getView());
+
+        //Main Editor
+        ui.setCenterItem(mainEditor.getWindow());
+        ui.leftBar.add(mainEditor.getButton());
+
+        //File Browser
+        ui.setLeftItem(fileTree.getWindow());
+        ui.leftBar.add(fileTree.getButton());
+
+        //logWindow
+        ui.leftBar.add(logwindow.getButton());
+        ui.setBottomItem(logwindow.getWindow());
+
+        //Java View
+        ui.leftBar.add(javaView.getButton());
+        ui.setRightItem(javaView.getWindow());
+
+
         ui.f.setVisible(true);
+
+        mainEditor.tabbedFileEditor.addFile("Welcome","This is AMod Studio v1.5\nAuthor: ManojBhakarPCM");
         //SwingUtilities.invokeLater(() -> apkUtils.getDevices());
 
     }

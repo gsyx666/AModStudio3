@@ -37,7 +37,7 @@ public class mod_MainMenu extends super_MenuInterface {
         if(smali.endsWith(".smali")){
             convertToJava(smali);
         }else{
-            mainWin.taJava.setText("");
+            mainWin.javaView.taJava.setText("");
         }
     }
     public void convertToJava(String smali){
@@ -45,7 +45,7 @@ public class mod_MainMenu extends super_MenuInterface {
         boolean ret = false;
         try {
             ManojTools.smaliToDexFast(smali,dex);
-            mainWin.taJava.setData(ManojTools.DexToJava(dex),"java");
+            mainWin.javaView.taJava.setData(ManojTools.DexToJava(dex),"java");
         } catch (Exception e) {
             utils.ErrorBox("Compile Error",e.getMessage() + "\nCause:" +  e.getClass() + "\n" + e.getCause());
         }

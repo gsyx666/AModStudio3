@@ -54,7 +54,7 @@ public class Listener_StatusBarTasks implements I_itct {
             case "task_finish" ->{
                 if ("DECOMPILER".equals(data)) {
                     String decompiledFolder = (String) detail;
-                    mainWin.fileTree.setModel(new FileSystemModel(new File(decompiledFolder)));
+                    mainWin.fileTree.fileTree.setModel(new FileSystemModel(new File(decompiledFolder)));
                     mainWin.mainWindow.setTitle(mainWin.getVersion() + " : " + decompiledFolder);
                     String info = LIb_apkFunctions.parsePackageAndMainActivity(decompiledFolder + "\\AndroidManifest.xml");
                     String[] inffo = info .split(";");

@@ -90,7 +90,7 @@ public class mod_apkUtils extends super_MenuInterface implements I_itct {
     }
     public void loadProject(String lastProject){
         mainWin.mainWindow.setTitle(mainwin.getVersion() + " : " + lastProject);
-        mainWin.fileTree.setModel(new FileSystemModel(new File(lastProject)));
+        mainWin.fileTree.fileTree.setModel(new FileSystemModel(new File(lastProject)));
         String[] tmp = LIb_apkFunctions.parsePackageAndMainActivity(lastProject + "\\AndroidManifest.xml").split(";");
         mainWin.vars.put("packageName",tmp[0]);
         mainWin.vars.put("mainClass",tmp[1]);
@@ -187,7 +187,7 @@ public class mod_apkUtils extends super_MenuInterface implements I_itct {
     }
     void RecompileAndRun(){
        Thread_compileAndInstall compileAndInstall = new Thread_compileAndInstall(mainWin.statusBarTasks);
-        compileAndInstall._decompiledFolderPath = mainWin.fileTree.getModel().getRoot().toString();
+        compileAndInstall._decompiledFolderPath = mainWin.fileTree.fileTree.getModel().getRoot().toString();
         compileAndInstall._zipAlignToolPath = getToolPath("zipAlign.exe");
         compileAndInstall._devId = AndroidDevices.get(devices.getSelectedItem().toString());
         compileAndInstall._adbpath = getToolPath("adb.exe");
@@ -218,7 +218,7 @@ public class mod_apkUtils extends super_MenuInterface implements I_itct {
             }
         }
         if(!allToolsSet && showError){
-           utils.ErrorBox("Some Tools are Not Set","Please Set Missing Tools Form Setting Menu\n\n" + allTools );
+          // utils.ErrorBox("Some Tools are Not Set","Please Set Missing Tools Form Setting Menu\n\n" + allTools );
         }
     }
 
