@@ -15,7 +15,7 @@ from the time i started this project [15-16 JUNE 2022] , i didnt find any softwa
   - `TODO` : Color Errors, Warnings..
   - `TODO` : Search Option
   - `TODO` : Select Error/Warning/.. only
-  - `TODO` : Select Package..
+  - `TODO` : Select Package.
   - `TODO` : Basic Run Winodw..
   - `TODO` : Select Device Support
 - `TODO` : Method And Field Parser Selector Bar.
