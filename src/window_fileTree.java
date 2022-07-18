@@ -36,11 +36,10 @@ public class window_fileTree implements I_Window {
         fileTreeToggle.addActionListener(e -> {
             if(!fileTreeToggle.isSelected()){
                 fileTreeToggle.putClientProperty("dPos",ui.getLeftPane().getDividerLocation());
-                //ui.getLeftPane().setDividerSize(0);
+                ui.getLeftPane().setDividerLocation(0);
             }else{
                 SwingUtilities.invokeLater(() -> {
                     ui.getLeftPane().setDividerLocation((int)fileTreeToggle.getClientProperty("dPos"));
-                    //ui.getLeftPane().setDividerSize(3);
                     ui.f.setVisible(true);
                 });
             }

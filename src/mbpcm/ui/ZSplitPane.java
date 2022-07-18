@@ -39,7 +39,7 @@ public class ZSplitPane
 	/**
 	 * The size of the transparent drag area.
 	 */
-	private int dividerDragSize = 15;
+	private int dividerDragSize = 10;
 
 	/**
 	 * The offset of the transparent drag area relative to the visible divider line.
@@ -48,7 +48,7 @@ public class ZSplitPane
 	 * Useful values are in the range 0 to {@link #dividerDragSize}.
 	 * Default is centered.
 	 */
-	private int dividerDragOffset = 4;
+	private int dividerDragOffset = -4;
 
 	public ZSplitPane() {
 		this( HORIZONTAL_SPLIT );
