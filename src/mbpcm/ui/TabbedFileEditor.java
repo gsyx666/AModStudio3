@@ -1,6 +1,7 @@
 package mbpcm.ui;
 
 import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
+import mbpcm.customViews.RModernScrollPane;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -106,7 +107,7 @@ public class TabbedFileEditor extends JTabbedPane {
 
         }
         rSyntaxTextArea.setFont(font);
-        RTextScrollPane rTextScrollPane = new RTextScrollPane(rSyntaxTextArea);
+        RModernScrollPane rTextScrollPane = new RModernScrollPane(rSyntaxTextArea);
         JPanel tabContentPanel = new JPanel(new BorderLayout());
         JPanel searchPanel = getSearchPannel(rSyntaxTextArea);
         searchPanel.setVisible(false);

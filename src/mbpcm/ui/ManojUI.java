@@ -14,7 +14,7 @@ public class ManojUI {
 
     public JPanel statusBar,center,contents;
     public JPanel bottomBar,leftBar,rightBar;
-    public JSplitPane spV12,spV23,spH12,spH23;
+    public ZSplitPane spV12,spV23,spH12,spH23;
     //public JPanel southScrollPane,centerScrollPane,rightScrollPane,leftScrollPane,northScrollPane;
     public JToolBar toolBar;
     public JMenuBar menuBar;
@@ -44,17 +44,17 @@ public class ManojUI {
         spV12.setDividerSize(0); //we are not using top panel.
 
         contents.add(spV12);
-
+        f.setLocationRelativeTo(null); //center screen
         f.setVisible(true);
 
     }
-    public JSplitPane getLeftPane(){
+    public ZSplitPane getLeftPane(){
         return spH12;
     }
-    public JSplitPane getRightPane(){
+    public ZSplitPane getRightPane(){
         return spH23;
     }
-    public JSplitPane getBottomPane(){
+    public ZSplitPane getBottomPane(){
         return spV23;
     }
     private void InitComponents(JFrame f){
@@ -71,10 +71,10 @@ public class ManojUI {
 
         contents = new JPanel(new BorderLayout());
 
-        spV12 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);//spV12.setResizeWeight(0.5);
-        spV23 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);//spV23.setResizeWeight(0.5);
-        spH12 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);//spH12.setResizeWeight(0.5);
-        spH23 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);//spH23.setResizeWeight(0.5);
+        spV12 = new ZSplitPane(JSplitPane.VERTICAL_SPLIT);//spV12.setResizeWeight(0.5);
+        spV23 = new ZSplitPane(JSplitPane.VERTICAL_SPLIT);//spV23.setResizeWeight(0.5);
+        spH12 = new ZSplitPane(JSplitPane.HORIZONTAL_SPLIT);//spH12.setResizeWeight(0.5);
+        spH23 = new ZSplitPane(JSplitPane.HORIZONTAL_SPLIT);//spH23.setResizeWeight(0.5);
 
     }
     public void setCenterItem(JComponent component){

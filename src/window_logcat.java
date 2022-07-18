@@ -2,23 +2,37 @@ import mbpcm.customViews.ModernScrollPane;
 import mbpcm.ui.I_Window;
 import mbpcm.ui.ManojUI;
 import mbpcm.ui.uiUtils;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rtextarea.ChangeableHighlightPainter;
 
 import javax.swing.*;
-import javax.swing.text.BoxView;
-import javax.swing.text.DefaultCaret;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.View;
+import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static javax.swing.Box.createHorizontalStrut;
 
 public class window_logcat extends Thread implements I_Window {
-    JTextArea textArea = new JTextArea();
+    JTextArea textPane = new JTextArea();
+    ManojUI ui;
+    Highlighter h = textPane.getHighlighter();
+    String regex = "(.{19})\\s+(\\d*)\\s+(\\d*)\\s+(I|W|D|E|V)\\s+(.*?):(.*)";
+    Pattern pattern = Pattern.compile(regex);
+    Highlighter.HighlightPainter Epainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x6C0101));
+    Highlighter.HighlightPainter Wpainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x9A0135));
+    Highlighter.HighlightPainter Ipainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x017A01));
+    Highlighter.HighlightPainter Dpainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x000000));
+    Highlighter.HighlightPainter Vpainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x021748));
+    //StyledDocument doc = textPane.getStyledDocument();
+    int len = 0;
+    //Style style;
+
     ModernScrollPane logcatScrollPane;
     JToggleButton toggleLogcat = ManojUI.getVerticalButton("Logcat",true);
     String command = "D:\\Program Files\\Nox\\bin\\adb.exe";
@@ -29,16 +43,36 @@ public class window_logcat extends Thread implements I_Window {
     JPanel mainPanel = new JPanel();
     JPanel optionBar = new JPanel();
     boolean keepRunning = true;
-    window_logcat(){
+    void parseString(String s){
+        textPane.append(s + "\n");
+        Matcher matcher = pattern.matcher(s);
+        if (matcher.find()) {
+            String errotype = matcher.group(4);
+            try {
+                switch (errotype){
+                    case "E" -> h.addHighlight(len, len + s.length(), Epainter);
+                    case "I" -> h.addHighlight(len, len + s.length(), Ipainter);
+                    case "V" -> h.addHighlight(len, len + s.length(), Vpainter);
+                    case "W" -> h.addHighlight(len, len + s.length(), Wpainter);
+                    case "D" -> h.addHighlight(len, len + s.length(), Dpainter);
+                }
+                //h.addHighlight(len + matcher.start(i), len + matcher.end(i), cyanPainter);
+            } catch (BadLocationException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        len += s.length() + 1;
+    }
+    window_logcat(ManojUI _ui){
+        ui = _ui;
         int Max_H = 20;
         mainPanel.setLayout(new BorderLayout());
-        textArea.setFont(new Font("Fixedsys",Font.PLAIN,10));
-        textArea.setBackground(new Color(43,43,43));
-        textArea.setForeground(new Color(153,186,184));
-        textArea.setEditable(false);
-        //caret = (DefaultCaret)textArea.getCaret();
-        //caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-        logcatScrollPane = new ModernScrollPane(textArea);
+        textPane.setFont(new Font("Fixedsys",Font.PLAIN,10));
+        textPane.setBackground(new Color(43,43,43));
+        textPane.setForeground(Color.LIGHT_GRAY);
+        textPane.setEditable(false);
+
+        logcatScrollPane = new ModernScrollPane(textPane);
         new SmartScroller(logcatScrollPane);
 
         mainPanel.add(logcatScrollPane,BorderLayout.CENTER);
@@ -84,12 +118,29 @@ public class window_logcat extends Thread implements I_Window {
         optionBar.add(selectors,BorderLayout.CENTER);
         optionBar.add(search,BorderLayout.EAST);
 
-
         logcatScrollPane.setBorder(BorderFactory.createEmptyBorder());
         toggleLogcat.setSelected(true);
         toggleLogcat.addActionListener(ae->{
+            if(!toggleLogcat.isSelected()){
+                toggleLogcat.putClientProperty("dPos",ui.getBottomPane().getDividerLocation());
+                //ui.getBottomPane().setDividerSize(0);
+            }else{
+                SwingUtilities.invokeLater(() -> {
+                    ui.getBottomPane().setDividerLocation((int)toggleLogcat.getClientProperty("dPos"));
+                    //ui.getBottomPane().setDividerSize(3);
+                    ui.f.setVisible(true);
+                });
+            }
             mainPanel.setVisible(toggleLogcat.isSelected());
         });
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                startThread();
+            }
+        });
+    }
+    public void startThread(){
         this.start();
     }
     public void run() {
@@ -103,14 +154,22 @@ public class window_logcat extends Thread implements I_Window {
             BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
             String s;
             while ((s = stdInput.readLine()) != null && keepRunning) {
-                textArea.append(s + "\n");
+                //addColoredText(s + "\n",Color.BLUE);
+                parseString(s);
             }
-            while ((s = stdError.readLine()) != null && keepRunning) {
-                textArea.append(s + "\n");
-            }
+            //while ((s = stdError.readLine()) != null && keepRunning) {
+                //addColoredText(s + "\n",Color.RED);
+                //textPane.append(s+"\n");
+            //}
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+    void addColoredText(String text,Color color){
+        //StyleConstants.setForeground(style, color);
+            textPane.setForeground(color);
+            //textPane.append(text);
+            len += text.length();
     }
     @Override
     public JComponent getWindow() {

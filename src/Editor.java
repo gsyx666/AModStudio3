@@ -52,7 +52,7 @@ class Editor {
     }
 
     void initPlugins() {
-        fileTree = new window_fileTree(mainEditor.tabbedFileEditor);
+        fileTree = new window_fileTree(ui,mainEditor.tabbedFileEditor);
         defaultMenus = new mod_defaultMenus(this);
         apkUtils = new mod_apkUtils(this);
         adbUtils = new mod_adbUtils(this);
@@ -62,7 +62,7 @@ class Editor {
         statusBarTasks = new Listener_StatusBarTasks(this);
         javaView = new window_JavaView(ui);
         statusBarPanel = new Bar_Status();
-        logcat = new window_logcat();
+        logcat = new window_logcat(ui);
     }
 
     Editor() {
@@ -111,7 +111,6 @@ class Editor {
         //Java View
         ui.leftBar.add(javaView.getButton());
         ui.setRightItem(javaView.getWindow());
-
 
         ui.f.setVisible(true);
 
