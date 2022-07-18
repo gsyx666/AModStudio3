@@ -1,16 +1,22 @@
 import mbpcm.customViews.ModernScrollPane;
 import mbpcm.ui.I_Window;
 import mbpcm.ui.ManojUI;
+import mbpcm.ui.uiUtils;
 
 import javax.swing.*;
+import javax.swing.text.BoxView;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.View;
 import java.awt.*;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+
+import static javax.swing.Box.createHorizontalStrut;
+
 public class window_logcat extends Thread implements I_Window {
     JTextArea textArea = new JTextArea();
     ModernScrollPane logcatScrollPane;
@@ -19,8 +25,13 @@ public class window_logcat extends Thread implements I_Window {
     String cmdlogcat = "logcat";
     String startDir = "";
     DefaultCaret caret;
+
+    JPanel mainPanel = new JPanel();
+    JPanel optionBar = new JPanel();
     boolean keepRunning = true;
     window_logcat(){
+        int Max_H = 20;
+        mainPanel.setLayout(new BorderLayout());
         textArea.setFont(new Font("Fixedsys",Font.PLAIN,10));
         textArea.setBackground(new Color(43,43,43));
         textArea.setForeground(new Color(153,186,184));
@@ -29,10 +40,55 @@ public class window_logcat extends Thread implements I_Window {
         //caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         logcatScrollPane = new ModernScrollPane(textArea);
         new SmartScroller(logcatScrollPane);
+
+        mainPanel.add(logcatScrollPane,BorderLayout.CENTER);
+        mainPanel.add(optionBar,BorderLayout.NORTH);
+
+        optionBar.setLayout(new BorderLayout());
+        optionBar.setBackground(new Color(0xBABAEF));
+
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new BoxLayout(buttons,BoxLayout.X_AXIS));
+        JButton jButtonstart = uiUtils.getJButton("start");
+        JButton jButtonstop = uiUtils.getJButton("stop");
+        buttons.add(jButtonstart);
+        buttons.add(jButtonstop);
+        buttons.add(createHorizontalStrut(10));
+
+
+        JPanel selectors = new JPanel();
+        selectors.setLayout(new BoxLayout(selectors,BoxLayout.X_AXIS));
+        JComboBox<String> jComboBoxApp = new JComboBox<>();
+        JComboBox<String> jComboBoxLogType = new JComboBox<>();
+        jComboBoxApp.setBorder(BorderFactory.createEmptyBorder());
+        jComboBoxLogType.setBorder(BorderFactory.createEmptyBorder());
+        jComboBoxApp.setMinimumSize(new Dimension(100,Max_H));
+        jComboBoxLogType.setMinimumSize(new Dimension(100,Max_H));
+        jComboBoxApp.setMaximumSize(new Dimension(200,Max_H));
+        jComboBoxLogType.setMaximumSize(new Dimension(200,Max_H));
+        selectors.add(jComboBoxApp);
+        selectors.add(createHorizontalStrut(10));
+        selectors.add(jComboBoxLogType);
+
+        JPanel search = new JPanel();
+        search.setLayout(new BoxLayout(search,BoxLayout.X_AXIS));
+        JTextField searchbox = new JTextField();
+        searchbox.setBorder(BorderFactory.createEmptyBorder());
+        searchbox.setMaximumSize(new Dimension(200,Max_H));
+        searchbox.setMinimumSize(new Dimension(100,Max_H));
+        searchbox.setPreferredSize(new Dimension(200,Max_H));
+        searchbox.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        search.add(searchbox);
+
+        optionBar.add(buttons,BorderLayout.WEST);
+        optionBar.add(selectors,BorderLayout.CENTER);
+        optionBar.add(search,BorderLayout.EAST);
+
+
         logcatScrollPane.setBorder(BorderFactory.createEmptyBorder());
         toggleLogcat.setSelected(true);
         toggleLogcat.addActionListener(ae->{
-            logcatScrollPane.setVisible(toggleLogcat.isSelected());
+            mainPanel.setVisible(toggleLogcat.isSelected());
         });
         this.start();
     }
@@ -58,7 +114,7 @@ public class window_logcat extends Thread implements I_Window {
     }
     @Override
     public JComponent getWindow() {
-        return logcatScrollPane;
+        return mainPanel;
     }
 
     @Override
