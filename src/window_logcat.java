@@ -28,8 +28,13 @@ public class window_logcat extends Thread implements I_Window {
     JTextArea textPane = new JTextArea();
     ManojUI ui;
     Highlighter h = textPane.getHighlighter();
-    String regex = "(.{19})\\s+(\\d*)\\s+(\\d*)\\s+(I|W|D|E|V)\\s+(.*?):(.*)";
+    String regex = "(.{19})\\s+(\\d*)\\s+(\\d*)\\s+([IWDEV])\\s+(.*?):(.*)";
+    String procStart = "Start proc\\s+(\\d+):(.*?)/";
+    String procKill = "Killing\\s+(\\d+):";
     Pattern pattern = Pattern.compile(regex);
+    Pattern pProcStart = Pattern.compile(procStart);
+    Pattern pProcKill = Pattern.compile(procKill);
+    JComboBox<String> jComboBoxApp;
     HashMap<String,String> procs = new HashMap<String,String>();
     Highlighter.HighlightPainter Epainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x6C0101));
     Highlighter.HighlightPainter Wpainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x9A0135));
@@ -59,7 +64,23 @@ public class window_logcat extends Thread implements I_Window {
             if(Objects.equals(activity, "ActivityManager")){
                 String data = matcher.group(6).trim();
                 if(data.startsWith("Start proc")){
-                    System.out.println(s);
+                    Matcher pmatcher = pProcStart.matcher(data);
+                    if (pmatcher.find()) {
+                        String PID = pmatcher.group(1);
+                        String pkg = pmatcher.group(2);
+                        procs.put(PID, pkg);
+                        jComboBoxApp.addItem(pkg);
+                        System.out.println("PID: " + PID + "    pkg: " + pkg);
+                    }
+                }else if(data.startsWith("Killing")){
+                    //System.out.println(s);
+                    Matcher kmatcher = pProcKill.matcher(data);
+                    if (kmatcher.find()) {
+                        String PID = kmatcher.group(1);
+                        System.out.println("killed: " + PID + "    pkg: " + procs.get(PID));
+                        procs.remove(PID);
+                        jComboBoxApp.removeItem(procs.get(PID));
+                    }
                 }
             }
             try {
@@ -112,8 +133,15 @@ public class window_logcat extends Thread implements I_Window {
 
         JPanel selectors = new JPanel();
         selectors.setLayout(new BoxLayout(selectors,BoxLayout.X_AXIS));
-        JComboBox<String> jComboBoxApp = new JComboBox<>();
+
+        jComboBoxApp = new JComboBox<>();
         JComboBox<String> jComboBoxLogType = new JComboBox<>();
+        jComboBoxLogType.addItem("All");
+        jComboBoxLogType.addItem("Error");
+        jComboBoxLogType.addItem("Warning");
+        jComboBoxLogType.addItem("Info");
+        jComboBoxLogType.addItem("Debug");
+        jComboBoxLogType.addItem("Verbose");
         jComboBoxApp.setBorder(BorderFactory.createEmptyBorder());
         jComboBoxLogType.setBorder(BorderFactory.createEmptyBorder());
         jComboBoxApp.setMinimumSize(new Dimension(100,Max_H));
