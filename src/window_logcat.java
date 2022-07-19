@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -25,78 +28,141 @@ import static java.awt.SystemColor.text;
 import static javax.swing.Box.createHorizontalStrut;
 
 public class window_logcat extends Thread implements I_Window {
-    JTextArea textPane = new JTextArea();
-    ManojUI ui;
-    Highlighter h = textPane.getHighlighter();
-    String regex = "(.{19})\\s+(\\d*)\\s+(\\d*)\\s+([IWDEV])\\s+(.*?):(.*)";
-    String procStart = "Start proc\\s+(\\d+):(.*?)/";
-    String procKill = "Killing\\s+(\\d+):";
-    Pattern pattern = Pattern.compile(regex);
-    Pattern pProcStart = Pattern.compile(procStart);
-    Pattern pProcKill = Pattern.compile(procKill);
-    JComboBox<String> jComboBoxApp;
-    HashMap<String,String> procs = new HashMap<String,String>();
-    Highlighter.HighlightPainter Epainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x6C0101));
-    Highlighter.HighlightPainter Wpainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x9A0135));
+    Highlighter.HighlightPainter Epainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0xA60042));
+    Highlighter.HighlightPainter Wpainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x750098));
     Highlighter.HighlightPainter Ipainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x017A01));
     Highlighter.HighlightPainter Dpainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x000000));
     Highlighter.HighlightPainter Vpainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x021748));
-    //StyledDocument doc = textPane.getStyledDocument();
-    int len = 0;
-    //Style style;
 
+    final Pattern pattern = Pattern.compile("(.{18})\\s+(\\d*)\\s+(\\d*)\\s+([IWDEV])\\s+(.*?):(.*)");
+    final Pattern pProcStart = Pattern.compile("Start proc\\s+(\\d+):(.*?)/");
+    final Pattern pProcKill = Pattern.compile("Killing\\s+(\\d+):");
+    final String command = "D:\\Program Files\\Nox\\bin\\adb.exe";
+    final String cmdlogcat = "logcat";
+    final String startDir = "";
+    final String latest = "\n\n--------------------------- | L a t e s t | -----------------------------\n\n";
+    ManojUI ui;
+    Process proc;
+    JTextArea textPane = new JTextArea();
+    Highlighter h = textPane.getHighlighter();
+    JComboBox<String> jComboBoxApp;
     ModernScrollPane logcatScrollPane;
     JToggleButton toggleLogcat = ManojUI.getVerticalButton("Logcat",true);
-    String command = "D:\\Program Files\\Nox\\bin\\adb.exe";
-    String cmdlogcat = "logcat";
-    String startDir = "";
-    DefaultCaret caret;
-
     JPanel mainPanel = new JPanel();
     JPanel optionBar = new JPanel();
-    boolean keepRunning = true;
+
+    HashMap<String,String> procs = new HashMap<>();
+
+    int len = 0;
+
+    String watchPkg = "";
+    Boolean watchMode = false;
+    String watchPID = "";
+    int FilterMode = 0;
+    final int FILTER_WATCH = 1;
+    final int FILTER_REGEX = 2;
+    final int FILTER_NONE = 0;
+    final int FILTER_LATEST = 4;
+    Boolean isLogLatest = false;
+    String currentTimeStamp = new SimpleDateFormat("MM-dd HH:mm:ss.SSS").format(new Date());
+    long startTime = getCurrEmuTime();
+
     void parseString(String s){
-        textPane.append(s + "\n");
         Matcher matcher = pattern.matcher(s);
-        if (matcher.find()) {
-            String errotype = matcher.group(4);
-            String activity = matcher.group(5);
-            if(Objects.equals(activity, "ActivityManager")){
-                String data = matcher.group(6).trim();
-                if(data.startsWith("Start proc")){
-                    Matcher pmatcher = pProcStart.matcher(data);
-                    if (pmatcher.find()) {
-                        String PID = pmatcher.group(1);
-                        String pkg = pmatcher.group(2);
-                        procs.put(PID, pkg);
-                        jComboBoxApp.addItem(pkg);
-                        System.out.println("PID: " + PID + "    pkg: " + pkg);
-                    }
-                }else if(data.startsWith("Killing")){
-                    //System.out.println(s);
-                    Matcher kmatcher = pProcKill.matcher(data);
-                    if (kmatcher.find()) {
-                        String PID = kmatcher.group(1);
-                        System.out.println("killed: " + PID + "    pkg: " + procs.get(PID));
-                        procs.remove(PID);
-                        jComboBoxApp.removeItem(procs.get(PID));
-                    }
+        if (!matcher.find()) {return;}
+
+        boolean isActivity = false;
+        boolean isKill = false;
+        String APID ="";
+        String APKG ="";
+        final String timeStamp = matcher.group(1);
+        final String LPID = matcher.group(2);
+        final String logtype = matcher.group(4);
+        final String activity = matcher.group(5);
+
+        if(!isLogLatest){if(startTime < parseMills(timeStamp)) {System.out.println(latest);textPane.append(latest); len+=latest.length(); isLogLatest = true;}}
+        if(activity.equals("ActivityManager")){
+            String data = matcher.group(6).trim();
+            if(data.startsWith("Start proc")){
+                Matcher pmatcher = pProcStart.matcher(data);
+                if (pmatcher.find()) {
+                    APID = pmatcher.group(1);
+                    APKG = pmatcher.group(2);
+                    procs.put(APID, APKG);
+                    jComboBoxApp.addItem(APKG);
+                    isActivity = true;
                 }
-            }
-            try {
-                switch (errotype){
-                    case "E" -> h.addHighlight(len, len + s.length(), Epainter);
-                    case "I" -> h.addHighlight(len, len + s.length(), Ipainter);
-                    case "V" -> h.addHighlight(len, len + s.length(), Vpainter);
-                    case "W" -> h.addHighlight(len, len + s.length(), Wpainter);
-                    case "D" -> h.addHighlight(len, len + s.length(), Dpainter);
+            }else if(data.startsWith("Killing")){
+                Matcher kmatcher = pProcKill.matcher(data);
+                if (kmatcher.find()) {
+                    APID = kmatcher.group(1);
+                    System.out.println("killed: " + APID + "    pkg: " + procs.get(APID));
+                    procs.remove(APID);
+                    jComboBoxApp.removeItem(procs.get(APID));
+                    isKill = true;
                 }
-                //h.addHighlight(len + matcher.start(i), len + matcher.end(i), cyanPainter);
-            } catch (BadLocationException e) {
-                throw new RuntimeException(e);
             }
         }
+
+        switch (FilterMode){
+            case FILTER_NONE -> addColoredLog(s,logtype);
+            case FILTER_WATCH -> {
+                if(watchPID.equals("")){
+                    if(isActivity){
+                        if(APKG.equals(watchPkg)){
+                            watchPID = APID;
+                            addColoredLog(s,logtype);
+                        }
+                    }
+                }else{
+                    if(LPID.equals(watchPID)){
+                        addColoredLog(s,logtype);
+                    }
+                }
+            }
+            case FILTER_LATEST -> {
+                if(isLogLatest){
+                    addColoredLog(s,logtype);
+                }
+            }
+        }
+    }
+    void addColoredLog(String s,String logtype){
+        textPane.append(s + "\n");
+        try {
+            switch (logtype){
+                case "E" -> h.addHighlight(len, len + s.length(), Epainter);
+                //case "I" -> h.addHighlight(len, len + s.length(), Ipainter);
+                case "V" -> h.addHighlight(len, len + s.length(), Vpainter);
+                case "W" -> h.addHighlight(len, len + s.length(), Wpainter);
+                //case "D" -> h.addHighlight(len, len + s.length(), Dpainter);
+            }
+            //h.addHighlight(len + matcher.start(i), len + matcher.end(i), cyanPainter);
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
         len += s.length() + 1;
+    }
+    void clearWindow(){
+        textPane.setText("");
+        len = 0;
+    }
+    void setSelectedDevice(String id){}
+    void setAdbPath(String path){}
+    void setWatch(String pkg){}
+    long getCurrEmuTime(){
+        String ret = utils.runFastTool(new String[]{"D:\\Program Files\\Nox\\bin\\adb.exe","shell","date"});
+        ret = ret.replace(" IST "," ");
+        long emuTime = getMillsFromString(ret,"EEE MMM dd HH:mm:ss yyyy");
+        String current = new SimpleDateFormat("MM-dd HH:mm:ss.SSS").format(emuTime);
+        return getMillsFromString(current,"MM-dd HH:mm:ss.SSS");
+    }
+    long getMillsFromString(String date,String format){
+        try {
+            return new SimpleDateFormat(format).parse(date).getTime();
+        } catch (ParseException e) {
+            return 0;
+        }
     }
     window_logcat(ManojUI _ui){
         ui = _ui;
@@ -189,8 +255,9 @@ public class window_logcat extends Thread implements I_Window {
             }
         });
     }
+
     public void startThread(){
-        this.start();
+        //this.start();
     }
     public void run() {
         try {
@@ -198,28 +265,17 @@ public class window_logcat extends Thread implements I_Window {
             if(!this.startDir.equals("")) {
                 processBuilder.directory(new File(this.startDir));
             }
-            final Process proc = processBuilder.start();
+            proc = processBuilder.start();
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
             String s;
-            while ((s = stdInput.readLine()) != null && keepRunning) {
-                //addColoredText(s + "\n",Color.BLUE);
+            while ((s = stdInput.readLine()) != null) {
                 parseString(s);
             }
-            //while ((s = stdError.readLine()) != null && keepRunning) {
-                //addColoredText(s + "\n",Color.RED);
-                //textPane.append(s+"\n");
-            //}
         }catch (Exception e){
             e.printStackTrace();
         }
     }
-    void addColoredText(String text,Color color){
-        //StyleConstants.setForeground(style, color);
-            textPane.setForeground(color);
-            //textPane.append(text);
-            len += text.length();
-    }
+
     @Override
     public JComponent getWindow() {
         return mainPanel;
@@ -229,15 +285,13 @@ public class window_logcat extends Thread implements I_Window {
     public JToggleButton getButton() {
         return toggleLogcat;
     }
-    public void stopLogcat(){
-        keepRunning = false;
+    long parseMills(String date){
+        try {
+            return new SimpleDateFormat("MM-dd HH:mm:ss.SSS").parse(date).getTime();
+        } catch (ParseException e) {
+            return 0;
+        }
     }
-    public void startWithCommand(String command_,String startDir_){
-        command = command_;
-        startDir = startDir_;
-        this.start();
-    }
-
 
     /**
      *  The SmartScroller will attempt to keep the viewport positioned based on

@@ -21,7 +21,12 @@ public class ManojUI {
     public JFrame f;
     public ManojUI() {
         f = new JFrame("AMod Studio v1.5");
-        f.setSize(1200, 800);
+        Rectangle gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        //Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        double width = gd.getWidth();
+        double height = gd.getHeight();
+       f.setSize((int)width, (int)height);
+        //
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         InitComponents(f);
@@ -44,8 +49,10 @@ public class ManojUI {
         spV12.setDividerSize(0); //we are not using top panel.
 
         contents.add(spV12);
+
         f.setLocationRelativeTo(null); //center screen
         f.setVisible(true);
+        f.setState(JFrame.MAXIMIZED_BOTH); //start Maximized
 
     }
     public ZSplitPane getLeftPane(){
@@ -71,10 +78,10 @@ public class ManojUI {
 
         contents = new JPanel(new BorderLayout());
 
-        spV12 = new ZSplitPane(JSplitPane.VERTICAL_SPLIT);//spV12.setResizeWeight(0.5);
-        spV23 = new ZSplitPane(JSplitPane.VERTICAL_SPLIT);//spV23.setResizeWeight(0.5);
-        spH12 = new ZSplitPane(JSplitPane.HORIZONTAL_SPLIT);//spH12.setResizeWeight(0.5);
-        spH23 = new ZSplitPane(JSplitPane.HORIZONTAL_SPLIT);//spH23.setResizeWeight(0.5);
+        spV12 = new ZSplitPane(JSplitPane.VERTICAL_SPLIT,"spV12");//spV12.setName("spV12");
+        spV23 = new ZSplitPane(JSplitPane.VERTICAL_SPLIT,"spV23");//spV23.setName("spV23");
+        spH12 = new ZSplitPane(JSplitPane.HORIZONTAL_SPLIT,"spH12");//spH12.setName("spH12");
+        spH23 = new ZSplitPane(JSplitPane.HORIZONTAL_SPLIT,"spH23");//spH23.setName("spH23");
 
     }
     public void setCenterItem(JComponent component){

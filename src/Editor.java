@@ -92,6 +92,12 @@ class Editor {
         ui.rightBar.setVisible(false);
         ui.bottomBar.setVisible(false);
 
+
+        ui.getRightPane().loadLocation();
+        ui.getLeftPane().loadLocation();
+        ui.getBottomPane().loadLocation();
+
+
         ui.statusBar.add(statusBarPanel.getView());
 
         //Main Editor

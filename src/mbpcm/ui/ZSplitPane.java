@@ -21,10 +21,12 @@ package mbpcm.ui;/*
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import com.formdev.flatlaf.ui.FlatSplitPaneUI;
+
 import java.awt.Graphics;
 import java.awt.Rectangle;
-import javax.swing.JSplitPane;
-import javax.swing.UIManager;
+import java.util.prefs.Preferences;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
@@ -49,15 +51,22 @@ public class ZSplitPane
 	 * Default is centered.
 	 */
 	private int dividerDragOffset = 4;
-
+	private String name;
 	public ZSplitPane() {
 		this( HORIZONTAL_SPLIT );
 	}
-
-	public ZSplitPane(int orientation ) {
+	public ZSplitPane(int orientation) {
 		super( orientation );
 		setContinuousLayout( true );
 		setDividerSize( 1 );
+	}
+	public ZSplitPane(int orientation,String name_ ) {
+		super( orientation );
+		setContinuousLayout( true );
+		setDividerSize( 1 );
+		name = name_;
+
+
 	}
 
 	public int getDividerDragSize() {
@@ -76,6 +85,12 @@ public class ZSplitPane
 	public void setDividerDragOffset( int dividerDragOffset ) {
 		this.dividerDragOffset = dividerDragOffset;
 		revalidate();
+	}
+	public void loadLocation(){
+		SwingUtilities.invokeLater(() -> {
+			Preferences prefs = Preferences.userNodeForPackage(ZSplitPane.class);
+			setDividerLocation(prefs.getInt(name, 0));
+		});
 	}
 
 	@Override
@@ -105,7 +120,7 @@ public class ZSplitPane
 	//---- class SplitPaneWithZeroSizeDividerUI -------------------------------
 
 	private class SplitPaneWithZeroSizeDividerUI
-		extends BasicSplitPaneUI
+		extends FlatSplitPaneUI
 	{
 		@Override
 		public BasicSplitPaneDivider createDefaultDivider() {
@@ -146,6 +161,9 @@ public class ZSplitPane
 		@Override
 		protected void finishDraggingTo( int location ) {
 			super.finishDraggingTo( location + dividerDragOffset );
+			Preferences prefs = Preferences.userNodeForPackage(mbpcm.ui.ZSplitPane.class);
+			prefs.putInt(name, location + dividerDragOffset);
 		}
+
 	}
 }

@@ -16,7 +16,7 @@
  */
 package brut.androlib.res.util;
 
-import org.xmlpull.renamed.MXSerializer;
+import brut.xmlpull.renamed.MXSerializer;
 
 import java.io.IOException;
 import java.io.OutputStream;
