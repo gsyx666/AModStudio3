@@ -57,7 +57,7 @@ class Editor {
         apkUtils = new mod_apkUtils(this);
         adbUtils = new mod_adbUtils(this);
         packageUtils = new mod_packageUtils(this);
-        logwindow = new window_log();
+        //logwindow = new window_log();
         mainMenu = new mod_MainMenu(this);
         statusBarTasks = new Listener_StatusBarTasks(this);
         javaView = new window_JavaView(ui);

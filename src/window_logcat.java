@@ -12,10 +12,16 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.awt.SystemColor.text;
 import static javax.swing.Box.createHorizontalStrut;
 
 public class window_logcat extends Thread implements I_Window {
@@ -24,6 +30,7 @@ public class window_logcat extends Thread implements I_Window {
     Highlighter h = textPane.getHighlighter();
     String regex = "(.{19})\\s+(\\d*)\\s+(\\d*)\\s+(I|W|D|E|V)\\s+(.*?):(.*)";
     Pattern pattern = Pattern.compile(regex);
+    HashMap<String,String> procs = new HashMap<String,String>();
     Highlighter.HighlightPainter Epainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x6C0101));
     Highlighter.HighlightPainter Wpainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x9A0135));
     Highlighter.HighlightPainter Ipainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0x017A01));
@@ -48,6 +55,13 @@ public class window_logcat extends Thread implements I_Window {
         Matcher matcher = pattern.matcher(s);
         if (matcher.find()) {
             String errotype = matcher.group(4);
+            String activity = matcher.group(5);
+            if(Objects.equals(activity, "ActivityManager")){
+                String data = matcher.group(6).trim();
+                if(data.startsWith("Start proc")){
+                    System.out.println(s);
+                }
+            }
             try {
                 switch (errotype){
                     case "E" -> h.addHighlight(len, len + s.length(), Epainter);
@@ -85,8 +99,14 @@ public class window_logcat extends Thread implements I_Window {
         buttons.setLayout(new BoxLayout(buttons,BoxLayout.X_AXIS));
         JButton jButtonstart = uiUtils.getJButton("start");
         JButton jButtonstop = uiUtils.getJButton("stop");
+        JButton jButtonsave = uiUtils.getJButton("save");
+        jButtonsave.addActionListener(ae->{
+                utils.file_put_contents("E:\\locatlog.txt",textPane.getText());
+                utils.MessageBox("Written logcat successfully");
+        });
         buttons.add(jButtonstart);
         buttons.add(jButtonstop);
+        buttons.add(jButtonsave);
         buttons.add(createHorizontalStrut(10));
 
 
@@ -114,6 +134,7 @@ public class window_logcat extends Thread implements I_Window {
         searchbox.setAlignmentX(Component.RIGHT_ALIGNMENT);
         search.add(searchbox);
 
+            search.add(new JLabel("Test Label"));
         optionBar.add(buttons,BorderLayout.WEST);
         optionBar.add(selectors,BorderLayout.CENTER);
         optionBar.add(search,BorderLayout.EAST);
