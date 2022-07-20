@@ -1,12 +1,17 @@
 // ManojBhaskarPCM : AMod Studio v3 : APK Modding IDE.
 
+import com.eztech.util.JavaClassFinder;
 import com.formdev.flatlaf.FlatDarculaLaf;
+import mbpcm.ui.I_Window;
 import mbpcm.ui.ManojUI;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 
 class Editor {
@@ -28,7 +33,7 @@ class Editor {
     HashMap<String,String> vars = new HashMap<>();
     ManojUI ui;
     window_logcat logcat;
-
+    WindowManager wmgr;
     //boolean developmentMode = true;
     public static void main(String[] args) {
         //FlatDarkLaf.setup();
@@ -63,15 +68,14 @@ class Editor {
         javaView = new window_JavaView(ui);
         statusBarPanel = new Bar_Status();
         logcat = new window_logcat(ui);
+        wmgr = new WindowManager(ui);
     }
 
     Editor() {
         //TODO: LogCat Window. Build Window
         //TODO: GUI [work in progress]
-        //TODO: log window.
         //TODO: Smali Syntax Check before Compiling.
         //TODO: direct dex class editing.
-        //TODO: logcat window.
         //TODO: Run Window(modified version of logcat)
         //TODO: plugins support.
         //TODO: Reference Finder
@@ -92,6 +96,9 @@ class Editor {
         ui.rightBar.setVisible(false);
         ui.bottomBar.setVisible(false);
 
+        JavaClassFinder finder = new JavaClassFinder();
+        List<Class<? extends I_Window>> returnedClasses = finder.findAllMatchingTypes(I_Window.class);
+        System.out.println(returnedClasses.size());
 
         ui.getRightPane().loadLocation();
         ui.getLeftPane().loadLocation();
@@ -100,6 +107,13 @@ class Editor {
 
         ui.statusBar.add(statusBarPanel.getView());
 
+        wmgr.addWindow("main",mainEditor.getWindow(),mainEditor.getButton(),WindowManager.CENTER);
+        wmgr.addWindow("filetree",fileTree.getWindow(),fileTree.getButton(),WindowManager.LEFT);
+        //ui.addWindow("logs",logwindow.getWindow(),ManojUI.BOTTOM);
+        wmgr.addWindow("logcat",logcat.getWindow(),logcat.getButton(),WindowManager.BOTTOM);
+        wmgr.addWindow("javaview",javaView.getWindow(),javaView.getButton(),WindowManager.RIGHT);
+
+/*/
         //Main Editor
         ui.setCenterItem(mainEditor.getWindow());
         ui.leftBar.add(mainEditor.getButton());
@@ -116,7 +130,7 @@ class Editor {
         ui.setBottomItem(logcat.getWindow());
         //Java View
         ui.leftBar.add(javaView.getButton());
-        ui.setRightItem(javaView.getWindow());
+        ui.setRightItem(javaView.getWindow());//*/
 
         ui.f.setVisible(true);
 
@@ -132,6 +146,7 @@ class Editor {
         panel.add(filler);
         return panel;
     }
+
 
 }
 

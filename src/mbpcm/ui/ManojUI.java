@@ -4,9 +4,12 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicLabelUI;
 import javax.swing.plaf.metal.MetalToggleButtonUI;
 import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ManojUI {
@@ -15,10 +18,13 @@ public class ManojUI {
     public JPanel statusBar,center,contents;
     public JPanel bottomBar,leftBar,rightBar;
     public ZSplitPane spV12,spV23,spH12,spH23;
-    //public JPanel southScrollPane,centerScrollPane,rightScrollPane,leftScrollPane,northScrollPane;
+   // public JLayeredPane lpBottom,lpLeft,lpCenter,lpRight;
     public JToolBar toolBar;
     public JMenuBar menuBar;
     public JFrame f;
+
+    public HashMap<String,JComponent> nameComponentMap = new HashMap<>();
+    public HashMap<String,JLayeredPane> nameLayerMap = new HashMap<>();
     public ManojUI() {
         f = new JFrame("AMod Studio v1.5");
         Rectangle gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
@@ -55,15 +61,9 @@ public class ManojUI {
         f.setState(JFrame.MAXIMIZED_BOTH); //start Maximized
 
     }
-    public ZSplitPane getLeftPane(){
-        return spH12;
-    }
-    public ZSplitPane getRightPane(){
-        return spH23;
-    }
-    public ZSplitPane getBottomPane(){
-        return spV23;
-    }
+
+
+
     private void InitComponents(JFrame f){
         menuBar = new JMenuBar();
         toolBar = new JToolBar();
@@ -81,8 +81,19 @@ public class ManojUI {
         spV12 = new ZSplitPane(JSplitPane.VERTICAL_SPLIT,"spV12");//spV12.setName("spV12");
         spV23 = new ZSplitPane(JSplitPane.VERTICAL_SPLIT,"spV23");//spV23.setName("spV23");
         spH12 = new ZSplitPane(JSplitPane.HORIZONTAL_SPLIT,"spH12");//spH12.setName("spH12");
-        spH23 = new ZSplitPane(JSplitPane.HORIZONTAL_SPLIT,"spH23");//spH23.setName("spH23");
+        spH23 = new ZSplitPane(JSplitPane.HORIZONTAL_SPLIT,"spH23");//spH23.setName("spH23"););
 
+    }
+
+
+    public ZSplitPane getLeftPane(){
+        return spH12;
+    }
+    public ZSplitPane getRightPane(){
+        return spH23;
+    }
+    public ZSplitPane getBottomPane(){
+        return spV23;
     }
     public void setCenterItem(JComponent component){
         spH12.setRightComponent(component);
@@ -96,6 +107,7 @@ public class ManojUI {
     public void setRightItem(JComponent component){
         spH23.setRightComponent(component);
     }
+
     public static JPanel createVerticalBar(int height){
         JPanel statusPanel = new JPanel();
         statusPanel.setBorder(BorderFactory.createMatteBorder(0,1,0,1,new Color(50,50,50)));
@@ -163,8 +175,8 @@ public class ManojUI {
             VERTICAL;
         }
 
-        private JComponent component;
-        private Layout layout;
+        private final JComponent component;
+        private final Layout layout;
         private String text;
         private Font font;
         private Color foreground;

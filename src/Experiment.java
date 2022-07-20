@@ -3,6 +3,8 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,28 +18,15 @@ public class Experiment {
 
     }
     Experiment(){
-      System.out.println(getCurrEmuTime());
+      JFrame f = new JFrame("hello");
+      f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+      JButton jButton = new JButton("helllo");
+      jButton.addActionListener(e -> System.out.println("action 1"));
+        jButton.addActionListener(e -> System.out.println("action 2"));
+        f.add(jButton);
+      f.pack();
+      f.setVisible(true);
     }
-    long getCurrEmuTime(){
-        String ret = utils.runFastTool(new String[]{"D:\\Program Files\\Nox\\bin\\adb.exe","shell","date"});
-        ret = ret.replace(" IST "," ");
-        long emuTime = getMillsFromString(ret,"EEE MMM dd HH:mm:ss yyyy");
-        String current = new SimpleDateFormat("MM-dd HH:mm:ss.SSS").format(emuTime);
-        return getMillsFromString(current,"MM-dd HH:mm:ss.SSS");
-    }
-    long parseMills(String date){
-        try {
-            return new SimpleDateFormat("MM-dd HH:mm:ss.SSS").parse(date).getTime();
-        } catch (ParseException e) {
-            return 0;
-        }
-    }
-    long getMillsFromString(String date,String format){
-        try {
-            return new SimpleDateFormat(format).parse(date).getTime();
-        } catch (ParseException e) {
-            return 0;
-        }
-    }
+
 
 }
