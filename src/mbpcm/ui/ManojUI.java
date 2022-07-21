@@ -1,16 +1,20 @@
 package mbpcm.ui;
 
+import com.formdev.flatlaf.ui.FlatSplitPaneUI;
+
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicLabelUI;
+import javax.swing.plaf.basic.BasicSplitPaneDivider;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.plaf.metal.MetalToggleButtonUI;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 public class ManojUI {
 
@@ -921,6 +925,125 @@ public class ManojUI {
             }
 
             g2.setTransform( tr );
+        }
+    }
+
+
+    public static class ZSplitPane
+        extends JSplitPane {
+        private int dividerDragSize = 10;
+        private int dividerDragOffset = 4;
+        private String name;
+        public ZSplitPane() {
+            this( HORIZONTAL_SPLIT );
+        }
+        public ZSplitPane(int orientation) {
+            super( orientation );
+            setContinuousLayout( true );
+            setDividerSize( 1 );
+        }
+        public ZSplitPane(int orientation,String name_ ) {
+            super( orientation );
+            setContinuousLayout( true );
+            setDividerSize( 1 );
+            name = name_;
+        }
+
+        public int getDividerDragSize() {
+            return dividerDragSize;
+        }
+
+        public void setDividerDragSize( int dividerDragSize ) {
+            this.dividerDragSize = dividerDragSize;
+            revalidate();
+        }
+
+        public int getDividerDragOffset() {
+            return dividerDragOffset;
+        }
+
+        public void setDividerDragOffset( int dividerDragOffset ) {
+            this.dividerDragOffset = dividerDragOffset;
+            revalidate();
+        }
+        public void loadLocation(){
+            SwingUtilities.invokeLater(() -> {
+                Preferences prefs = Preferences.userNodeForPackage(ZSplitPane.class);
+                setDividerLocation(prefs.getInt(name, 0));
+                System.out.println("DividerLocation Loaded for " + name + " : " + prefs.getInt(name,0));
+            });
+        }
+        public int getDividerSavedLocation(){
+            Preferences prefs = Preferences.userNodeForPackage(ZSplitPane.class);
+            return(prefs.getInt(name, 0));
+        }
+
+        @Override
+        @SuppressWarnings("deprecation")
+        public void layout() {
+            super.layout();
+            BasicSplitPaneDivider divider = ((BasicSplitPaneUI)getUI()).getDivider();
+            Rectangle bounds = divider.getBounds();
+            if( orientation == HORIZONTAL_SPLIT ) {
+                bounds.x -= dividerDragOffset;
+                bounds.width = dividerDragSize;
+            } else {
+                bounds.y -= dividerDragOffset;
+                bounds.height = dividerDragSize;
+            }
+            divider.setBounds( bounds );
+        }
+
+        @Override
+        public void updateUI() {
+            setUI( new SplitPaneWithZeroSizeDividerUI() );
+            revalidate();
+        }
+
+        //---- class SplitPaneWithZeroSizeDividerUI -------------------------------
+
+        private class SplitPaneWithZeroSizeDividerUI extends FlatSplitPaneUI {
+            @Override
+            public BasicSplitPaneDivider createDefaultDivider() {
+                return new ZeroSizeDivider( this );
+            }
+        }
+
+        //---- class ZeroSizeDivider ----------------------------------------------
+
+        private class ZeroSizeDivider extends BasicSplitPaneDivider {
+            public ZeroSizeDivider( BasicSplitPaneUI ui ) {
+                super( ui );
+                super.setBorder( null );
+                setBackground( UIManager.getColor( "controlShadow" ) );
+            }
+
+            @Override
+            public void setBorder( Border border ) {
+                // ignore
+            }
+
+            @Override
+            public void paint( Graphics g ) {
+                g.setColor( getBackground() );
+                if( orientation == HORIZONTAL_SPLIT )
+                    g.drawLine( dividerDragOffset, 0, dividerDragOffset, getHeight() - 1 );
+                else
+                    g.drawLine( 0, dividerDragOffset, getWidth() - 1, dividerDragOffset );
+            }
+
+            @Override
+            protected void dragDividerTo( int location ) {
+                super.dragDividerTo( location + dividerDragOffset );
+            }
+
+            @Override
+            protected void finishDraggingTo( int location ) {
+                super.finishDraggingTo( location + dividerDragOffset );
+                Preferences prefs = Preferences.userNodeForPackage(ZSplitPane.class);
+                prefs.putInt(name, location + dividerDragOffset);
+            }
+
         }
     }
 }

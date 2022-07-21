@@ -51,7 +51,7 @@ public class JSplitPaneWithZeroSizeDividerDemo
 		right.setBorder( null );
 
 		// create split pane
-		ZSplitPane splitPane = new ZSplitPane();
+		ManojUI.ZSplitPane splitPane = new ManojUI.ZSplitPane();
 		splitPane.setBorder( null );
 		splitPane.setDividerLocation( 200 );
 		splitPane.setLeftComponent( left );

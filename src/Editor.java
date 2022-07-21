@@ -62,7 +62,7 @@ class Editor {
         apkUtils = new mod_apkUtils(this);
         adbUtils = new mod_adbUtils(this);
         packageUtils = new mod_packageUtils(this);
-        //logwindow = new window_log();
+        logwindow = new window_log();
         mainMenu = new mod_MainMenu(this);
         statusBarTasks = new Listener_StatusBarTasks(this);
         javaView = new window_JavaView(ui);
@@ -95,42 +95,26 @@ class Editor {
         toolBar.setMaximumSize(new Dimension(mainWindow.getWidth(), 20));
         ui.rightBar.setVisible(false);
         ui.bottomBar.setVisible(false);
-
-        JavaClassFinder finder = new JavaClassFinder();
-        List<Class<? extends I_Window>> returnedClasses = finder.findAllMatchingTypes(I_Window.class);
-        System.out.println(returnedClasses.size());
-
-        ui.getRightPane().loadLocation();
-        ui.getLeftPane().loadLocation();
-        ui.getBottomPane().loadLocation();
-
-
         ui.statusBar.add(statusBarPanel.getView());
 
-        wmgr.addWindow("main",mainEditor.getWindow(),mainEditor.getButton(),WindowManager.CENTER);
-        wmgr.addWindow("filetree",fileTree.getWindow(),fileTree.getButton(),WindowManager.LEFT);
-        //ui.addWindow("logs",logwindow.getWindow(),ManojUI.BOTTOM);
-        wmgr.addWindow("logcat",logcat.getWindow(),logcat.getButton(),WindowManager.BOTTOM);
-        wmgr.addWindow("javaview",javaView.getWindow(),javaView.getButton(),WindowManager.RIGHT);
+        //JavaClassFinder finder = new JavaClassFinder();
+        //List<Class<? extends I_Window>> returnedClasses = finder.findAllMatchingTypes(I_Window.class);
+        //System.out.println(returnedClasses.size());
 
-/*/
-        //Main Editor
-        ui.setCenterItem(mainEditor.getWindow());
-        ui.leftBar.add(mainEditor.getButton());
+        //============================= : Load Windows : ========================
+        List<I_Window> loadedWindows = new ArrayList<>();
+        loadedWindows.add(mainEditor);
+        loadedWindows.add(fileTree);
+        loadedWindows.add(logcat);
+        loadedWindows.add(javaView);
+        loadedWindows.add(logwindow);
 
-        //File Browser
-        ui.setLeftItem(fileTree.getWindow());
-        ui.leftBar.add(fileTree.getButton());
+        for (I_Window cls:loadedWindows) {
+            wmgr.addWindow(cls.getWindowName(),cls.getWindow(),cls.getButton(),cls.getPrefPosition());
+        }
+        wmgr.finishAdding();
+        //========================================================
 
-        //logWindow
-        //ui.leftBar.add(logwindow.getButton());
-        //ui.setBottomItem(logwindow.getWindow());
-        //logcat Window
-        ui.leftBar.add(logcat.getButton());
-        ui.setBottomItem(logcat.getWindow());
-        //Java View
-        ui.leftBar.add(javaView.getButton());
-        ui.setRightItem(javaView.getWindow());//*/
 
         ui.f.setVisible(true);
 

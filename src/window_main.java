@@ -12,8 +12,6 @@ public class window_main implements I_Window {
         toggleMain = ManojUI.getVerticalButton("Editor",true);
         toggleMain.setSelected(true);
         toggleMain.setEnabled(false);
-        toggleMain.addActionListener(e -> tabbedFileEditor.setVisible(toggleMain.isSelected()));
-
     }
     @Override
     public JComponent getWindow() {
@@ -23,5 +21,14 @@ public class window_main implements I_Window {
     @Override
     public JToggleButton getButton() {
         return toggleMain;
+    }
+
+    @Override
+    public String getWindowName() {
+        return "Editor";
+    }
+    @Override
+    public int getPrefPosition() {
+        return WindowManager.CENTER;
     }
 }

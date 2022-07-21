@@ -16,20 +16,6 @@ public class window_JavaView implements I_Window {
         rTextScrollPane = new RModernScrollPane(taJava);
         taJava.setEditable(false);
         taJavaToggle = ManojUI.getVerticalButton("Java",true);
-        taJavaToggle.addActionListener(e -> {
-            if(!taJavaToggle.isSelected()){
-                taJavaToggle.putClientProperty("dPos",ui.getRightPane().getDividerLocation());
-                //ui.getRightPane().setDividerSize(0);
-            }else{
-                SwingUtilities.invokeLater(() -> {
-                    ui.getRightPane().setDividerLocation((int)taJavaToggle.getClientProperty("dPos"));
-                    //ui.getRightPane().setDividerSize(3);
-                    ui.f.setVisible(true);
-                });
-            }
-            rTextScrollPane.setVisible(taJavaToggle.isSelected());
-            ui.f.setVisible(true);
-        });
         taJavaToggle.setSelected(true);
 
     }
@@ -41,5 +27,15 @@ public class window_JavaView implements I_Window {
     @Override
     public JToggleButton getButton() {
         return taJavaToggle;
+    }
+
+    @Override
+    public String getWindowName() {
+        return "java";
+    }
+
+    @Override
+    public int getPrefPosition() {
+        return WindowManager.RIGHT;
     }
 }

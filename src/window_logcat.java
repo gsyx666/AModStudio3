@@ -228,26 +228,13 @@ public class window_logcat extends Thread implements I_Window {
         searchbox.setAlignmentX(Component.RIGHT_ALIGNMENT);
         search.add(searchbox);
 
-            search.add(new JLabel("Test Label"));
+        search.add(new JLabel("Test Label"));
         optionBar.add(buttons,BorderLayout.WEST);
         optionBar.add(selectors,BorderLayout.CENTER);
         optionBar.add(search,BorderLayout.EAST);
 
         logcatScrollPane.setBorder(BorderFactory.createEmptyBorder());
         toggleLogcat.setSelected(true);
-        toggleLogcat.addActionListener(ae->{
-            if(!toggleLogcat.isSelected()){
-                toggleLogcat.putClientProperty("dPos",ui.getBottomPane().getDividerLocation());
-                //ui.getBottomPane().setDividerSize(0);
-            }else{
-                SwingUtilities.invokeLater(() -> {
-                    ui.getBottomPane().setDividerLocation((int)toggleLogcat.getClientProperty("dPos"));
-                    //ui.getBottomPane().setDividerSize(3);
-                    ui.f.setVisible(true);
-                });
-            }
-            mainPanel.setVisible(toggleLogcat.isSelected());
-        });
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -285,6 +272,16 @@ public class window_logcat extends Thread implements I_Window {
     public JToggleButton getButton() {
         return toggleLogcat;
     }
+    @Override
+    public String getWindowName() {
+        return "Editor";
+    }
+
+    @Override
+    public int getPrefPosition() {
+        return WindowManager.BOTTOM;
+    }
+
     long parseMills(String date){
         try {
             return new SimpleDateFormat("MM-dd HH:mm:ss.SSS").parse(date).getTime();

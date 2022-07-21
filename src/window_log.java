@@ -24,7 +24,6 @@ public class window_log extends OutputStream implements I_Window {
 
         logWinToggle = ManojUI.getVerticalButton("Logs",true);
         logWinToggle.setSelected(true);
-        logWinToggle.addActionListener(e -> {spLogWindow.setVisible(logWinToggle.isSelected());});
     }
 
     @Override
@@ -46,5 +45,15 @@ public class window_log extends OutputStream implements I_Window {
     @Override
     public JToggleButton getButton() {
         return logWinToggle;
+    }
+
+    @Override
+    public String getWindowName() {
+        return "log";
+    }
+
+    @Override
+    public int getPrefPosition() {
+        return WindowManager.BOTTOM;
     }
 }

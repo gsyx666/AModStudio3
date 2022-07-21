@@ -33,18 +33,6 @@ public class window_fileTree implements I_Window {
         });
 
         fileTreeToggle = ManojUI.getVerticalButton("Project",true);
-        fileTreeToggle.addActionListener(e -> {
-            if(!fileTreeToggle.isSelected()){
-                fileTreeToggle.putClientProperty("dPos",ui.getLeftPane().getDividerLocation());
-                ui.getLeftPane().setDividerLocation(0);
-            }else{
-                SwingUtilities.invokeLater(() -> {
-                    ui.getLeftPane().setDividerLocation((int)fileTreeToggle.getClientProperty("dPos"));
-                    ui.f.setVisible(true);
-                });
-            }
-            spFileTree.setVisible(fileTreeToggle.isSelected());
-        });
         fileTreeToggle.setSelected(true);
     }
     @Override
@@ -55,5 +43,15 @@ public class window_fileTree implements I_Window {
     @Override
     public JToggleButton getButton() {
         return fileTreeToggle;
+    }
+
+    @Override
+    public String getWindowName() {
+        return "fileTree";
+    }
+
+    @Override
+    public int getPrefPosition() {
+        return WindowManager.LEFT;
     }
 }

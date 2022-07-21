@@ -1,15 +1,4 @@
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-
 import javax.swing.*;
-import javax.swing.text.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Experiment {
 
