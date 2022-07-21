@@ -10,9 +10,16 @@ from the time i started this project [15-16 JUNE 2022] , i didnt find any softwa
 - `DONE` : Smali Syntax Highlighting
 - `DONE` : SplitApk zip Support: By Merging All Splitted Apk's `[Still Buggy]`
 - `DONE` : IntelliJ like Dark Themed Modular GUI.
+  - `TODO` : Icons for Tabs,Buttons
+  - `TODO` : Selected Tab Background Color.
+  - `TODO` : A Nice Font
+- `TODO` : ReadMe
+  - `TODO` : Screenshot of GUI
+  - `TODO` : Project Structure for Code Contributers
+  - `TODO` : A Basic How To:
 - `[WORKING ON]` : LogCat And Run Window.
   - `DONE` : Basic Logcat Window
-  - `TODO` : Color Errors, Warnings..
+  - `DONE` : Color Errors, Warnings..
   - `TODO` : Search Option
   - `TODO` : Select Error/Warning/.. only
   - `TODO` : Select Package.
@@ -27,7 +34,6 @@ from the time i started this project [15-16 JUNE 2022] , i didnt find any softwa
 - `TODO` : Custom Code Snippet Injection Tool.
 - `TODO` : package Remover with Reference Finder.
 #### MINOR IMPROVEMENTS:
-- `TODO` : use any monospace font.
 - `TODO` : Decompile With Deobsfucation.
 #### BUGS And PROBLEMS:
 - `[Fixed]` : Nox Running But Not Showing in Device List.. Fixed using "adb connect"
