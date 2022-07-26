@@ -791,12 +791,17 @@ public class ManojUI {
         @Override
         public void paintIcon(Component c, Graphics g, int x, int y)
         {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             if (axis == Axis.X_AXIS)
             {
                 int height = getIconHeight();
 
                 for (Icon icon : icons)
                 {
+
                     int iconY = getOffset(height, icon.getIconHeight(), alignmentY);
                     icon.paintIcon(c, g, x, y + iconY);
                     x += icon.getIconWidth() + gap;
@@ -868,9 +873,9 @@ public class ManojUI {
             return new Dimension( dim.height, dim.width );
         }
 
-        private static Rectangle paintIconR = new Rectangle();
-        private static Rectangle paintTextR = new Rectangle();
-        private static Rectangle paintViewR = new Rectangle();
+        private static final Rectangle paintIconR = new Rectangle();
+        private static final Rectangle paintTextR = new Rectangle();
+        private static final Rectangle paintViewR = new Rectangle();
         private static Insets paintViewInsets = new Insets(0, 0, 0, 0);
 
         public void paint(Graphics g, JComponent c) {

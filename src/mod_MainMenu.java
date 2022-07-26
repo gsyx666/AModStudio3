@@ -1,4 +1,5 @@
 import mbpcm.ManojTools;
+import mbpcm.ui.IButton;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -10,7 +11,7 @@ public class mod_MainMenu extends super_MenuInterface {
 
     mod_MainMenu(Editor _mainWin) {
         super(_mainWin);
-        JButton convertToJava = getIButton("convert.png");
+        JButton convertToJava = new IButton(utils.getImageFromRes( "icons8-save-12.png"));
         convertToJava.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

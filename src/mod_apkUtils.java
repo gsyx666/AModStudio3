@@ -3,6 +3,7 @@ import com.android.apksig.ApkSigner;
 import com.android.apksig.ApkVerifier;
 import com.android.apksig.apk.ApkFormatException;
 import mbpcm.customViews.FileSystemModel;
+import mbpcm.ui.IButton;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
@@ -56,8 +57,8 @@ public class mod_apkUtils extends super_MenuInterface implements I_itct {
         //--------------------------------
         devices = new JComboBox<>();
         devices.setMaximumSize(new Dimension(110,25));
-        JButton refreshDevices = getIButton("sinchronize-16.png");
-        JButton run = getIButton("play-12.png");
+        JButton refreshDevices = new IButton(utils.getImageFromRes("icons8-synchronize-12.png"));
+        JButton run = new IButton(utils.getImageFromRes("play-12.png"));
         run.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -1,4 +1,5 @@
 import mbpcm.customViews.ModernScrollPane;
+import mbpcm.ui.IButton;
 import mbpcm.ui.I_Window;
 import mbpcm.ui.ManojUI;
 import mbpcm.ui.uiUtils;
@@ -184,9 +185,9 @@ public class window_logcat extends Thread implements I_Window {
 
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons,BoxLayout.X_AXIS));
-        JButton jButtonstart = uiUtils.getJButton("start");
-        JButton jButtonstop = uiUtils.getJButton("stop");
-        JButton jButtonsave = uiUtils.getJButton("save");
+        JButton jButtonstart = new IButton(utils.getImageFromRes("play-12.png"));
+        JButton jButtonstop = new IButton(utils.getImageFromRes("stop.png"));
+        JButton jButtonsave = new IButton(utils.getImageFromRes("save.png"));
         jButtonsave.addActionListener(ae->{
                 utils.file_put_contents("E:\\locatlog.txt",textPane.getText());
                 utils.MessageBox("Written logcat successfully");
@@ -244,7 +245,7 @@ public class window_logcat extends Thread implements I_Window {
     }
 
     public void startThread(){
-        //this.start();
+        this.start();
     }
     public void run() {
         try {
