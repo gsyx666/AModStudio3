@@ -1,24 +1,22 @@
-import brut.androlib.*;
+import brut.androlib.Androlib;
+import brut.androlib.ApkOptions;
 import com.android.apksig.ApkSigner;
 import com.android.apksig.ApkVerifier;
 import com.android.apksig.apk.ApkFormatException;
 import mbpcm.customViews.FileSystemModel;
-import mbpcm.ui.IButton;
+import mbpcm.ui.SmoothIcon;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+import java.util.*;
 import java.util.prefs.Preferences;
 
 import static org.apache.commons.lang3.ArrayUtils.reverse;
@@ -56,26 +54,20 @@ public class mod_apkUtils extends super_MenuInterface implements I_itct {
         addMenuItems("APK","ReCompile&Run,Locate ReCompiled,Check ZipAlignment,Check Signature,Zip Align,Sign Apk");
         //--------------------------------
         devices = new JComboBox<>();
-        devices.setMaximumSize(new Dimension(110,25));
-        JButton refreshDevices = new IButton(utils.getImageFromRes("icons8-synchronize-12.png"));
-        JButton run = new IButton(utils.getImageFromRes("play-12.png"));
-        run.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                RecompileAndRun();
-            }
-        });
-        refreshDevices.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                getDevices();
-            }
-        });
+        devices.setMaximumSize(new Dimension(200,30));
+        JButton refreshDevices = new JButton();
+        refreshDevices.setIcon(new SmoothIcon(utils.getImageFromRes("icons8-synchronize-12.png")));
+        JButton run = new JButton();
+        run.setIcon(new SmoothIcon(utils.getImageFromRes("start.png")));
+        run.addActionListener(e -> RecompileAndRun());
+        refreshDevices.addActionListener(e -> getDevices());
 
+
+        mainwin.toolBar.add(Box.createHorizontalGlue());
         mainwin.toolBar.add(devices);
-        mainwin.toolBar.add(Box.createHorizontalStrut(10));
+        //mainwin.toolBar.add(Box.createHorizontalStrut(2));
         mainwin.toolBar.add(refreshDevices);
-        mainwin.toolBar.add(Box.createHorizontalStrut(10));
+        //mainwin.toolBar.add(Box.createHorizontalStrut(2));
         mainwin.toolBar.add(run);
     }
     public void getDevices(){
@@ -92,7 +84,7 @@ public class mod_apkUtils extends super_MenuInterface implements I_itct {
     public void loadProject(String lastProject){
         mainWin.mainWindow.setTitle(mainwin.getVersion() + " : " + lastProject);
         mainWin.fileTree.fileTree.setModel(new FileSystemModel(new File(lastProject)));
-        String[] tmp = LIb_apkFunctions.parsePackageAndMainActivity(lastProject + "\\AndroidManifest.xml").split(";");
+        String[] tmp = Objects.requireNonNull(LIb_apkFunctions.parsePackageAndMainActivity(lastProject + "\\AndroidManifest.xml")).split(";");
         mainWin.vars.put("packageName",tmp[0]);
         mainWin.vars.put("mainClass",tmp[1]);
     }
@@ -108,82 +100,75 @@ public class mod_apkUtils extends super_MenuInterface implements I_itct {
         }
 
         switch (menuName) {
-            case "check all path":
-                utils.MessageBox("Tools Status",allTools);
-                break;
-            case "Apk Tools Path":
-                utils.MessageBox("Help ApkTools Path","""
-                        set Tools Path for Apk Compiling And Decompiling.
-                        without them You Wont be able to do anything in this software.
-                        Default Tools are included in this software(in tools folder).
-                        but if you want to set new version of tool. then just set its path.
-                        list of tools not set-
-                      
-                        """ + notSetTools);
-                break;
-            case "Decompile":
-                filepath = utils.selectFileByDialog("Select Apk To Decompile",getCurrentPath(),"Apk Files(apk)|Split Apk(zip)");
-                if(!filepath.equals("")){
-                    new Thread_Decompile(mainwin.statusBarTasks,filepath).start();
+            case "check all path" -> utils.MessageBox("Tools Status", allTools);
+            case "Apk Tools Path" -> utils.MessageBox("Help ApkTools Path", """
+                    set Tools Path for Apk Compiling And Decompiling.
+                    without them You Wont be able to do anything in this software.
+                    Default Tools are included in this software(in tools folder).
+                    but if you want to set new version of tool. then just set its path.
+                    list of tools not set-
+                                          
+                    """ + notSetTools);
+            case "Decompile" -> {
+                filepath = utils.selectFileByDialog("Select Apk To Decompile", getCurrentPath(), "Apk Files(apk)|Split Apk(zip)");
+                if (!filepath.equals("")) {
+                    new Thread_Decompile(mainwin.statusBarTasks, filepath).start();
                 }
-                break;
-            case "ReCompile&Run":
-                RecompileAndRun();
-                break;
-            case "Check ZipAlignment":
-                filepath = utils.selectFileByDialog("Select Apk to Check Zip Alignment",utils.getCurrentPath(),"Apk Files(apk)");
-                if(!filepath.equals("")){
-                    if(zipAlgnCheck(filepath,getToolPath("zipAlign.exe"),true)){
-                        utils.MessageBox("Alignment Check"," Yes, Aligned properly");
-                    }else{
-                        utils.MessageBox("Alignment Check"," No, Not Aligned");
+            }
+            case "ReCompile&Run" -> RecompileAndRun();
+            case "Check ZipAlignment" -> {
+                filepath = utils.selectFileByDialog("Select Apk to Check Zip Alignment", utils.getCurrentPath(), "Apk Files(apk)");
+                if (!filepath.equals("")) {
+                    if (zipAlgnCheck(filepath, getToolPath("zipAlign.exe"), true)) {
+                        utils.MessageBox("Alignment Check", " Yes, Aligned properly");
+                    } else {
+                        utils.MessageBox("Alignment Check", " No, Not Aligned");
                     }
                 }
-                break;
-            case "Check Signature":
-                filepath = utils.selectFileByDialog("Select Apk to Check if Signed",utils.getCurrentPath(),"Apk Files(apk)");
-                if(!filepath.equals("")){
-                    checkApkSignatures(filepath,true,true);
+            }
+            case "Check Signature" -> {
+                filepath = utils.selectFileByDialog("Select Apk to Check if Signed", utils.getCurrentPath(), "Apk Files(apk)");
+                if (!filepath.equals("")) {
+                    checkApkSignatures(filepath, true, true);
                 }
-                break;
-            case "Zip Align":
-                filepath = utils.selectFileByDialog("Select Apk to ZipAlign",utils.getCurrentPath(),"Apk Files(apk)");
-                if(!filepath.equals("")){
+            }
+            case "Zip Align" -> {
+                filepath = utils.selectFileByDialog("Select Apk to ZipAlign", utils.getCurrentPath(), "Apk Files(apk)");
+                if (!filepath.equals("")) {
                     String outpath = utils.removeExtension(filepath) + "_aligned.apk";
-                    zipAlign(filepath,outpath,getToolPath("zipAlign.exe"),true);
-                    if(!zipAlgnCheck(outpath,getToolPath("zipAlign.exe"),false)){
-                        utils.MessageBox("Error","Dont know how this method failed!");
-                    }else{
-                        utils.MessageBox("Success","Verified ! now apk aligned properly.");
+                    zipAlign(filepath, outpath, getToolPath("zipAlign.exe"), true);
+                    if (!zipAlgnCheck(outpath, getToolPath("zipAlign.exe"), false)) {
+                        utils.MessageBox("Error", "Dont know how this method failed!");
+                    } else {
+                        utils.MessageBox("Success", "Verified ! now apk aligned properly.");
                     }
                 }
-                break;
-            case "Sign Apk":
+            }
+            case "Sign Apk" -> {
                 String pem = getToolPath("cert.pem");
                 String pk8 = getToolPath("pk.pk8");
-                filepath = utils.selectFileByDialog("Select Apk to Sign it",utils.getCurrentPath(),"Apk Files(apk)");
-                if(!filepath.equals("")){
+                filepath = utils.selectFileByDialog("Select Apk to Sign it", utils.getCurrentPath(), "Apk Files(apk)");
+                if (!filepath.equals("")) {
                     String outpath = utils.removeExtension(filepath) + "_aligned.apk";
-                    signApk(filepath,outpath,pem,pk8,true,true);
+                    signApk(filepath, outpath, pem, pk8, true, true);
                 }
-                break;
-            case "Locate ReCompiled":
-                utils.LocateFileInExplorer(SignedApkPath);
-                break;
-            case "OpenFolderAsProject":
-                filepath = utils.selectFolder("Select Project Folder",utils.getCurrentPath());
-                if(!filepath.equals("")){
+            }
+            case "Locate ReCompiled" -> utils.LocateFileInExplorer(SignedApkPath);
+            case "OpenFolderAsProject" -> {
+                filepath = utils.selectFolder("Select Project Folder", utils.getCurrentPath());
+                if (!filepath.equals("")) {
                     addToRecentProject(filepath);
                     loadProject(filepath);
                 }
-                break;
-            default:
+            }
+            default -> {
                 File file = new File(menuName);
-                if(file.exists() && file.isDirectory()){
-                    utils.file_put_contents("lastproject.txt",menuName);
+                if (file.exists() && file.isDirectory()) {
+                    utils.file_put_contents("lastproject.txt", menuName);
                     loadProject(menuName);
                 }
                 throw new IllegalStateException("Unexpected value: " + menuName);
+            }
         }
     }
     void RecompileAndRun(){

@@ -12,6 +12,7 @@ public class window_main implements I_Window {
         toggleMain = ManojUI.getVerticalButton("Editor",true);
         toggleMain.setSelected(true);
         toggleMain.setEnabled(false);
+        toggleMain.setVisible(false);
     }
     @Override
     public JComponent getWindow() {
@@ -30,5 +31,10 @@ public class window_main implements I_Window {
     @Override
     public int getPrefPosition() {
         return WindowManager.CENTER;
+    }
+
+    @Override
+    public void onSettingChanged(String a, String b, Object c) {
+
     }
 }

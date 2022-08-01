@@ -18,6 +18,7 @@ package brut.androlib.res;
 
 import brut.androlib.AndrolibException;
 import brut.androlib.ApkOptions;
+import brut.androlib.LOGGER;
 import brut.androlib.err.CantFindFrameworkResException;
 import brut.androlib.meta.MetaInfo;
 import brut.androlib.meta.PackageInfo;
@@ -38,7 +39,6 @@ import org.xmlpull.v1.XmlSerializer;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -1037,7 +1037,7 @@ final public class AndrolibResources {
     // TODO: dirty static hack. I have to refactor decoding mechanisms.
     public static boolean sKeepBroken = false;
 
-    private final static Logger LOGGER = Logger.getLogger(AndrolibResources.class.getName());
+    //private final static Logger brut.androlib.LOGGER = Logger.getLogger(AndrolibResources.class.getName());
 
     private File mFrameworkDirectory = null;
 

@@ -56,4 +56,9 @@ public class window_log extends OutputStream implements I_Window {
     public int getPrefPosition() {
         return WindowManager.BOTTOM;
     }
+
+    @Override
+    public void onSettingChanged(String a, String b, Object c) {
+
+    }
 }

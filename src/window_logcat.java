@@ -2,9 +2,7 @@ import mbpcm.customViews.ModernScrollPane;
 import mbpcm.ui.IButton;
 import mbpcm.ui.I_Window;
 import mbpcm.ui.ManojUI;
-import mbpcm.ui.uiUtils;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rtextarea.ChangeableHighlightPainter;
 
 import javax.swing.*;
 import javax.swing.text.*;
@@ -13,19 +11,14 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.awt.SystemColor.text;
 import static javax.swing.Box.createHorizontalStrut;
 
 public class window_logcat extends Thread implements I_Window {
@@ -44,13 +37,16 @@ public class window_logcat extends Thread implements I_Window {
     final String latest = "\n\n--------------------------- | L a t e s t | -----------------------------\n\n";
     ManojUI ui;
     Process proc;
-    JTextArea textPane = new JTextArea();
-    Highlighter h = textPane.getHighlighter();
+    WindowWithTopBar logcatW = new WindowWithTopBar();;
+    WindowWithTopBar searchW = new WindowWithTopBar();;
+    JSplitPane splitPane;
+    //JTextArea textPane = new JTextArea();
+    Highlighter h = logcatW.textArea.getHighlighter();
     JComboBox<String> jComboBoxApp;
-    ModernScrollPane logcatScrollPane;
+    //ModernScrollPane logcatScrollPane;
     JToggleButton toggleLogcat = ManojUI.getVerticalButton("Logcat",true);
-    JPanel mainPanel = new JPanel();
-    JPanel optionBar = new JPanel();
+    //JPanel mainPanel = new JPanel();
+    //JPanel optionBar = new JPanel();
 
     HashMap<String,String> procs = new HashMap<>();
 
@@ -81,7 +77,7 @@ public class window_logcat extends Thread implements I_Window {
         final String logtype = matcher.group(4);
         final String activity = matcher.group(5);
 
-        if(!isLogLatest){if(startTime < parseMills(timeStamp)) {System.out.println(latest);textPane.append(latest); len+=latest.length(); isLogLatest = true;}}
+        if(!isLogLatest){if(startTime < parseMills(timeStamp)) {System.out.println(latest);logcatW.textArea.append(latest); len+=latest.length(); isLogLatest = true;}}
         if(activity.equals("ActivityManager")){
             String data = matcher.group(6).trim();
             if(data.startsWith("Start proc")){
@@ -129,7 +125,7 @@ public class window_logcat extends Thread implements I_Window {
         }
     }
     void addColoredLog(String s,String logtype){
-        textPane.append(s + "\n");
+       logcatW.textArea.append(s + "\n");
         try {
             switch (logtype){
                 case "E" -> h.addHighlight(len, len + s.length(), Epainter);
@@ -145,7 +141,7 @@ public class window_logcat extends Thread implements I_Window {
         len += s.length() + 1;
     }
     void clearWindow(){
-        textPane.setText("");
+        logcatW.textArea.setText("");
         len = 0;
     }
     void setSelectedDevice(String id){}
@@ -165,31 +161,19 @@ public class window_logcat extends Thread implements I_Window {
             return 0;
         }
     }
+
     window_logcat(ManojUI _ui){
         ui = _ui;
         int Max_H = 20;
-        mainPanel.setLayout(new BorderLayout());
-        textPane.setFont(new Font("Fixedsys",Font.PLAIN,10));
-        textPane.setBackground(new Color(43,43,43));
-        textPane.setForeground(Color.LIGHT_GRAY);
-        textPane.setEditable(false);
-
-        logcatScrollPane = new ModernScrollPane(textPane);
-        new SmartScroller(logcatScrollPane);
-
-        mainPanel.add(logcatScrollPane,BorderLayout.CENTER);
-        mainPanel.add(optionBar,BorderLayout.NORTH);
-
-        optionBar.setLayout(new BorderLayout());
-        optionBar.setBackground(new Color(0xBABAEF));
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,logcatW.container,searchW.container);
 
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons,BoxLayout.X_AXIS));
-        JButton jButtonstart = new IButton(utils.getImageFromRes("play-12.png"));
+        JButton jButtonstart = new IButton(utils.getImageFromRes("start.png"));
         JButton jButtonstop = new IButton(utils.getImageFromRes("stop.png"));
         JButton jButtonsave = new IButton(utils.getImageFromRes("save.png"));
         jButtonsave.addActionListener(ae->{
-                utils.file_put_contents("E:\\locatlog.txt",textPane.getText());
+                utils.file_put_contents("E:\\locatlog.txt",logcatW.textArea.getText());
                 utils.MessageBox("Written logcat successfully");
         });
         buttons.add(jButtonstart);
@@ -209,6 +193,7 @@ public class window_logcat extends Thread implements I_Window {
         jComboBoxLogType.addItem("Info");
         jComboBoxLogType.addItem("Debug");
         jComboBoxLogType.addItem("Verbose");
+
         jComboBoxApp.setBorder(BorderFactory.createEmptyBorder());
         jComboBoxLogType.setBorder(BorderFactory.createEmptyBorder());
         jComboBoxApp.setMinimumSize(new Dimension(100,Max_H));
@@ -229,12 +214,11 @@ public class window_logcat extends Thread implements I_Window {
         searchbox.setAlignmentX(Component.RIGHT_ALIGNMENT);
         search.add(searchbox);
 
-        search.add(new JLabel("Test Label"));
-        optionBar.add(buttons,BorderLayout.WEST);
-        optionBar.add(selectors,BorderLayout.CENTER);
-        optionBar.add(search,BorderLayout.EAST);
+        logcatW.topbar.add(buttons,BorderLayout.WEST);
+        searchW.topbar.add(selectors,BorderLayout.CENTER);
+        searchW.topbar.add(search,BorderLayout.EAST);
 
-        logcatScrollPane.setBorder(BorderFactory.createEmptyBorder());
+
         toggleLogcat.setSelected(true);
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -266,7 +250,7 @@ public class window_logcat extends Thread implements I_Window {
 
     @Override
     public JComponent getWindow() {
-        return mainPanel;
+        return splitPane;
     }
 
     @Override
@@ -283,6 +267,11 @@ public class window_logcat extends Thread implements I_Window {
         return WindowManager.BOTTOM;
     }
 
+    @Override
+    public void onSettingChanged(String a, String b, Object c) {
+
+    }
+
     long parseMills(String date){
         try {
             return new SimpleDateFormat("MM-dd HH:mm:ss.SSS").parse(date).getTime();
@@ -291,6 +280,36 @@ public class window_logcat extends Thread implements I_Window {
         }
     }
 
+    private class WindowWithTopBar{
+        public JPanel container;
+        public JPanel topbar;
+        public JTextArea textArea;
+        public ModernScrollPane scrollPane;
+        public int Max_H = 20;
+        WindowWithTopBar(){
+            topbar = new JPanel(new BorderLayout());
+            textArea = new JTextArea();
+            container = new JPanel(new BorderLayout());
+            container.add(topbar,BorderLayout.NORTH);
+            topbar.setMaximumSize(new Dimension(0,Max_H));
+            topbar.setMinimumSize(new Dimension(0,Max_H));
+            topbar.setPreferredSize(new Dimension(0,Max_H));
+            scrollPane = new ModernScrollPane(textArea);
+            scrollPane.setBorder(BorderFactory.createEmptyBorder());
+            new SmartScroller(scrollPane);
+            container.add(scrollPane,BorderLayout.CENTER);
+
+            textArea.setFont(new Font("Fixedsys",Font.PLAIN,10));
+            textArea.setBackground(new Color(43,43,43));
+            textArea.setForeground(Color.LIGHT_GRAY);
+            textArea.setEditable(false);
+
+            topbar.setLayout(new BorderLayout());
+            topbar.setBackground(new Color(0x2B2B2B));
+            textArea.setVisible(true);
+            container.setVisible(true);
+        }
+    }
     /**
      *  The SmartScroller will attempt to keep the viewport positioned based on
      *  the users interaction with the scrollbar. The normal behaviour is to keep

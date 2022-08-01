@@ -2,17 +2,18 @@ package mbpcm.customViews;
 
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
+import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import java.io.File;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Vector;
+import java.util.*;
 
 public class FileSystemModel implements TreeModel {
     private final File root;
     private String cachedDirpath = "";
-    private String[] list = {};
+    private File[] list = {};
+    private String[] listS = {};
+    HashMap<String,String[]> cache = new HashMap<>();
     private final Vector<TreeModelListener> listeners = new Vector<>();
     public FileSystemModel(File rootDirectory) {
         root = rootDirectory;
@@ -23,25 +24,64 @@ public class FileSystemModel implements TreeModel {
     public Object getChild(Object parent, int index) {
         //msg("getChild");
         File directory = (File) parent;
-        if(!cachedDirpath.equals(directory.getAbsolutePath())){
-            list = directory.list();
-            cachedDirpath = directory.getAbsolutePath();
-        }
-        return new TreeFile(directory, list[index]);
+        updateCache2(directory);
+        return new TreeFile(directory, listS[index]);
     }
 
     public int getChildCount(Object parent) {
         //msg("getChildCount");
         File file = (File) parent;
         if (file.isDirectory()) {
-            if(!cachedDirpath.equals(file.getAbsolutePath())){
-                list = file.list();
-                cachedDirpath = file.getAbsolutePath();
-            }
-            if (list != null)
-                return list.length;
+            updateCache2(file);
+            if (listS != null)
+                return listS.length;
         }
         return 0;
+    }
+    private void updateCache(File parent){
+        String key = parent.getAbsolutePath();
+        if(!cache.containsKey(key)){
+            msg("caching");
+            list = parent.listFiles();
+            Arrays.sort(list, Comparator.comparingLong(File::length));
+            //cachedDirpath = parent.getAbsolutePath();
+            //cache.put(key,list);
+        }else{
+            //list = cache.get(key);
+        }
+    }
+    private void updateCache2(File parent){
+        String key = parent.getAbsolutePath();
+        if(!cache.containsKey(key)){
+                int folen=0,filen=0,total=0;
+                listS = parent.list();
+                File[] folders = parent.listFiles(File::isDirectory);
+                File[] files = parent.listFiles(File::isFile);
+                if(folders!=null){
+                    folen = folders.length;
+                }
+                if(files!=null){
+                    Arrays.sort(files, Comparator.comparingLong(File::length).reversed());
+                    filen=files.length;
+                }
+
+                listS = new String[folen + filen];
+
+                if(folders!=null){
+                    for(int i=0;i<folen;i++){
+                        listS[i] = folders[i].getName();
+                    }
+                }
+                if(files!=null){
+                    for(int i=0;i<filen;i++){
+                        listS[i+folen] = files[i].getName();
+                    }
+                }
+                //cachedDirpath = parent.getAbsolutePath();
+                cache.put(key,listS);
+        }else{
+            listS = cache.get(key);
+        }
     }
 
     public boolean isLeaf(Object node) {

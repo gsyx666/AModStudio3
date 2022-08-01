@@ -9,6 +9,7 @@ import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
 import org.fife.ui.rtextarea.SearchResult;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -18,21 +19,20 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Objects;
 
 import static javax.swing.Box.createHorizontalStrut;
 import static mbpcm.ui.uiUtils.*;
 
 //TODO: Smooth Scroll.
 //TODO: BUG: JetBrains Mono Font Not Loading
-//TODO: three dots.
-//TODO: Upper Pane saprator disable.
 //TODO: Syntax Highlighting for XML etc.
 //TODO: BUG: binary files are not loaded.
-//TODO: Icon for filetype.
 
 public class TabbedFileEditor extends JTabbedPane {
     public HashMap<String,String> syntaxMap = new HashMap<>();
@@ -72,17 +72,13 @@ public class TabbedFileEditor extends JTabbedPane {
         RSyntaxTextArea rSyntaxTextArea = new RSyntaxTextArea();
 
 
-
         if(syntaxMap.containsKey(fileExtension)) {
             rSyntaxTextArea.setSyntaxEditingStyle(syntaxMap.get(fileExtension));
         }
         theme.apply(rSyntaxTextArea);
         rSyntaxTextArea.setCurrentLineHighlightColor(Color.BLACK);
-        //rSyntaxTextArea.setMarkOccurrencesColor(Color.blue);
         rSyntaxTextArea.setSelectionColor(Color.BLUE);
         rSyntaxTextArea.setMarkAllHighlightColor(new Color(0x237F8A));
-        //rSyntaxTextArea.setSelectedTextColor(Color.BLUE);
-        //rSyntaxTextArea.setUseSelectedTextColor(true);
         if(stringsrc) {
             rSyntaxTextArea.setText(filecontent);
         }else{
@@ -108,6 +104,7 @@ public class TabbedFileEditor extends JTabbedPane {
         }
         rSyntaxTextArea.setFont(font);
         RModernScrollPane rTextScrollPane = new RModernScrollPane(rSyntaxTextArea);
+        rTextScrollPane.setLineNumbersEnabled(true);
         JPanel tabContentPanel = new JPanel(new BorderLayout());
         JPanel searchPanel = getSearchPannel(rSyntaxTextArea);
         searchPanel.setVisible(false);
@@ -117,12 +114,12 @@ public class TabbedFileEditor extends JTabbedPane {
         //searchPanel.setBackground(Color.BLACK);
         tabContentPanel.add(searchPanel,BorderLayout.SOUTH);
         tabContentPanel.add(rTextScrollPane,BorderLayout.CENTER);
-        rTextScrollPane.setBorder(BorderFactory.createEmptyBorder());
+        //rTextScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         rSyntaxTextArea.registerKeyboardAction(
                 e -> {
                     Object obj = e.getSource();
-                    if (obj instanceof RSyntaxTextArea rSyntaxTextArea1) {
+                    if (obj instanceof RSyntaxTextArea) {
                         searchPanel.setVisible(true);
                         JTextField jTextField = (JTextField) getComponentByName(searchPanel,"txtSearch");
                         if(jTextField!=null){
@@ -143,9 +140,15 @@ public class TabbedFileEditor extends JTabbedPane {
 
         JPanel pnlTab = new JPanel();
         pnlTab.setOpaque(false);
+        pnlTab.setBackground(Color.lightGray);
 
         JLabel lblTitle = new JLabel(filename);
-        pnlTab.add(lblTitle);
+        Icon icon = getFileIcon(filename);
+        if(icon!=null){
+            lblTitle.setIcon(getFileIcon(filename));
+        }
+
+        pnlTab.add(lblTitle,BorderLayout.CENTER);
 
         JButton btnClose = new JButton("x");
         btnClose.setBorder(new uiUtils.RoundedBorder2(UIManager.getColor("Panel.background"),1,15));
@@ -158,12 +161,37 @@ public class TabbedFileEditor extends JTabbedPane {
                 this.removeTabAt(this.indexOfTab(strID));
             }
         });
-        pnlTab.add(btnClose);
+        pnlTab.add(btnClose,BorderLayout.EAST);
 
         this.setTabComponentAt(index, pnlTab);
         this.setSelectedIndex(index);
     }
-
+    private Icon getFileIcon(String name){
+        int index = name.lastIndexOf('.');
+        String iconpath ;
+        if(index>0) {
+            switch (name.substring(index)){
+                case ".xml" -> iconpath = "../../fileicons/xml.png";
+                case ".yml" -> iconpath = "../../fileicons/yml.png";
+                case ".smali" -> iconpath = "../../fileicons/smali.png";
+                default -> iconpath ="";
+            }
+        }else {
+            iconpath="";
+        }
+        try {
+            if(!iconpath.equals("")) {
+                InputStream in = this.getClass().getResourceAsStream(iconpath);
+                if(in==null){return null;}
+                Image image = ImageIO.read(in);
+                return new SmoothIcon(image,16,16);
+            }else{
+                return null;
+            }
+        } catch (IOException e) {
+            return null;
+        }
+    }
     private String getFilesAsString(String filepath){
         try {
             return Files.readString(Paths.get(filepath), StandardCharsets.UTF_8);

@@ -12,7 +12,7 @@ public class Experiment {
 
     }
     Experiment(){
-        String testImage = "play-12.png";
+        String testImage = "start.png";
         JFrame f = getJFrame("Test");
         JPanel panel = getHPanel();
         panel.add(new IButton(utils.getImageFromRes(testImage),"Run"));

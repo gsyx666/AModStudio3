@@ -34,6 +34,7 @@ class Editor {
     ManojUI ui;
     window_logcat logcat;
     WindowManager wmgr;
+    List<I_Window> loadedWindows = new ArrayList<>();
     //boolean developmentMode = true;
     public static void main(String[] args) {
         //FlatDarkLaf.setup();
@@ -72,8 +73,6 @@ class Editor {
     }
 
     Editor() {
-        //TODO: LogCat Window. Build Window
-        //TODO: GUI [work in progress]
         //TODO: Smali Syntax Check before Compiling.
         //TODO: direct dex class editing.
         //TODO: Run Window(modified version of logcat)
@@ -81,7 +80,6 @@ class Editor {
         //TODO: Reference Finder
         //TODO: Ad Remover.
         //TODO: Snippet Injector.
-
         //TODO: BUG: splitted apk merger not working properly.
 
         initComponents();
@@ -97,12 +95,8 @@ class Editor {
         ui.bottomBar.setVisible(false);
         ui.statusBar.add(statusBarPanel.getView());
 
-        //JavaClassFinder finder = new JavaClassFinder();
-        //List<Class<? extends I_Window>> returnedClasses = finder.findAllMatchingTypes(I_Window.class);
-        //System.out.println(returnedClasses.size());
-
         //============================= : Load Windows : ========================
-        List<I_Window> loadedWindows = new ArrayList<>();
+
         loadedWindows.add(mainEditor);
         loadedWindows.add(fileTree);
         loadedWindows.add(logcat);
@@ -129,6 +123,15 @@ class Editor {
         panel.setLayout(new GridLayout(1, 1));
         panel.add(filler);
         return panel;
+    }
+
+    public void settingChanged(I_Window window,String a,String b,Object c){
+        System.out.println(I_Window.class.getName() + ": SETTING CHANGED:" + a + " : " + b);
+        for (I_Window cls:loadedWindows) {
+            if(!cls.equals(window)){
+                cls.onSettingChanged(a,b,c);
+            }
+        }
     }
 
 

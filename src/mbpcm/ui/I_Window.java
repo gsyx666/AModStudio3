@@ -9,4 +9,6 @@ public interface I_Window {
     public abstract String getWindowName();
 
     public abstract int getPrefPosition();
+
+    public abstract void onSettingChanged(String a,String b,Object c);
 }

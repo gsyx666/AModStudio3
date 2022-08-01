@@ -38,4 +38,9 @@ public class window_JavaView implements I_Window {
     public int getPrefPosition() {
         return WindowManager.RIGHT;
     }
+
+    @Override
+    public void onSettingChanged(String a, String b, Object c) {
+        System.out.println(a+ ":" +b);
+    }
 }

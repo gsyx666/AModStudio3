@@ -801,7 +801,7 @@ public class Androlib {
         mAndRes.close();
     }
 
-    private final static Logger LOGGER = Logger.getLogger(Androlib.class.getName());
+    //private final static Logger LOGGER = Logger.getLogger(Androlib.class.getName());
 
     private final static String SMALI_DIRNAME = "smali";
     private final static String APK_DIRNAME = "build/apk";

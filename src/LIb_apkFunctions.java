@@ -8,6 +8,14 @@ import java.io.File;
 import java.util.Objects;
 
 public class LIb_apkFunctions {
+    static String getAttribute(Node node,String attrib){
+        try {
+            return node.getAttributes().getNamedItem(attrib).getNodeValue();
+        }catch (Exception e){
+            System.out.println("Attribute Not Found - " + attrib);
+            return "";
+        }
+    }
     static String parsePackageAndMainActivity(String manifest){
         String PackageName = "";
         String ApplicationClass ="";
@@ -20,7 +28,7 @@ public class LIb_apkFunctions {
             doc.getDocumentElement().normalize();
 
             PackageName = doc.getDocumentElement().getAttribute("package");
-            ApplicationClass =  doc.getElementsByTagName("application").item(0).getAttributes().getNamedItem("android:name").getNodeValue();
+            ApplicationClass = getAttribute(doc.getElementsByTagName("application").item(0),"android:name");
 
             NodeList nList = doc.getElementsByTagName("action");
             Node nNode;
