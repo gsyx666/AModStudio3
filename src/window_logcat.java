@@ -2,11 +2,15 @@ import mbpcm.customViews.ModernScrollPane;
 import mbpcm.ui.IButton;
 import mbpcm.ui.I_Window;
 import mbpcm.ui.ManojUI;
+import mbpcm.ui.SmoothIcon;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import javax.swing.*;
+import javax.swing.plaf.metal.MetalToggleButtonUI;
 import javax.swing.text.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.io.BufferedReader;
@@ -40,14 +44,10 @@ public class window_logcat extends Thread implements I_Window {
     WindowWithTopBar logcatW = new WindowWithTopBar();;
     WindowWithTopBar searchW = new WindowWithTopBar();;
     JSplitPane splitPane;
-    //JTextArea textPane = new JTextArea();
     Highlighter h = logcatW.textArea.getHighlighter();
     JComboBox<String> jComboBoxApp;
-    //ModernScrollPane logcatScrollPane;
     JToggleButton toggleLogcat = ManojUI.getVerticalButton("Logcat",true);
-    //JPanel mainPanel = new JPanel();
-    //JPanel optionBar = new JPanel();
-
+    JToggleButton find;
     HashMap<String,String> procs = new HashMap<>();
 
     int len = 0;
@@ -55,7 +55,7 @@ public class window_logcat extends Thread implements I_Window {
     String watchPkg = "";
     Boolean watchMode = false;
     String watchPID = "";
-    int FilterMode = 0;
+    int FilterMode = 4;
     final int FILTER_WATCH = 1;
     final int FILTER_REGEX = 2;
     final int FILTER_NONE = 0;
@@ -86,6 +86,7 @@ public class window_logcat extends Thread implements I_Window {
                     APID = pmatcher.group(1);
                     APKG = pmatcher.group(2);
                     procs.put(APID, APKG);
+                    System.out.println(APID + " : " + APKG);
                     jComboBoxApp.addItem(APKG);
                     isActivity = true;
                 }
@@ -95,6 +96,9 @@ public class window_logcat extends Thread implements I_Window {
                     APID = kmatcher.group(1);
                     System.out.println("killed: " + APID + "    pkg: " + procs.get(APID));
                     procs.remove(APID);
+                    if(FilterMode==FILTER_WATCH && APID.equals(watchPID)){
+                        removeWatch();
+                    }
                     jComboBoxApp.removeItem(procs.get(APID));
                     isKill = true;
                 }
@@ -104,17 +108,15 @@ public class window_logcat extends Thread implements I_Window {
         switch (FilterMode){
             case FILTER_NONE -> addColoredLog(s,logtype);
             case FILTER_WATCH -> {
-                if(watchPID.equals("")){
-                    if(isActivity){
-                        if(APKG.equals(watchPkg)){
-                            watchPID = APID;
-                            addColoredLog(s,logtype);
-                        }
-                    }
-                }else{
-                    if(LPID.equals(watchPID)){
-                        addColoredLog(s,logtype);
-                    }
+                if(isActivity && APKG.equals(watchPkg)){
+                    watchPID = APID;
+                    addRunLog(s,logtype);
+                    System.out.println(s);
+                }else if(watchPID.equals(LPID)){
+                        addRunLog(s,logtype);
+                        System.out.println(s);
+                }else {
+                    addColoredLog(s,logtype);
                 }
             }
             case FILTER_LATEST -> {
@@ -123,6 +125,10 @@ public class window_logcat extends Thread implements I_Window {
                 }
             }
         }
+    }
+    void removeWatch(){
+        //FilterMode = FILTER_LATEST;
+        watchPID = "";
     }
     void addColoredLog(String s,String logtype){
        logcatW.textArea.append(s + "\n");
@@ -139,6 +145,9 @@ public class window_logcat extends Thread implements I_Window {
             throw new RuntimeException(e);
         }
         len += s.length() + 1;
+    }
+    void addRunLog(String s,String logtype){
+        searchW.textArea.append(s + "\n");
     }
     void clearWindow(){
         logcatW.textArea.setText("");
@@ -172,6 +181,31 @@ public class window_logcat extends Thread implements I_Window {
         JButton jButtonstart = new IButton(utils.getImageFromRes("start.png"));
         JButton jButtonstop = new IButton(utils.getImageFromRes("stop.png"));
         JButton jButtonsave = new IButton(utils.getImageFromRes("save.png"));
+
+        find = new JToggleButton();
+        find.setIcon(new SmoothIcon(utils.getImageFromRes("find.png"),16,16));
+        find.setUI(new MetalToggleButtonUI() {
+            @Override
+            protected Color getSelectColor() {
+                return new Color(40, 40, 40);
+            }
+        });
+        find.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JToggleButton thisButton = ((JToggleButton) e.getSource());
+                if(thisButton.isSelected()){
+                    searchW.container.setVisible(true);
+                    splitPane.setDividerLocation(splitPane.getWidth()/2);
+                }else if (!thisButton.isSelected()){
+                    searchW.container.setVisible(false);
+                }
+            }
+        });
+        searchW.container.setVisible(false);
+        find.setSelected(false);
+        find.setBackground(Color.getColor("#3C3F41"));
+        find.setBorder(BorderFactory.createEmptyBorder(10,10,10,5));
         jButtonsave.addActionListener(ae->{
                 utils.file_put_contents("E:\\locatlog.txt",logcatW.textArea.getText());
                 utils.MessageBox("Written logcat successfully");
@@ -180,6 +214,7 @@ public class window_logcat extends Thread implements I_Window {
         buttons.add(jButtonstop);
         buttons.add(jButtonsave);
         buttons.add(createHorizontalStrut(10));
+        buttons.add(find);
 
 
         JPanel selectors = new JPanel();
@@ -269,7 +304,16 @@ public class window_logcat extends Thread implements I_Window {
 
     @Override
     public void onSettingChanged(String a, String b, Object c) {
-
+            if(a.equals("app_launched")){
+                //System.out.println("****************appLaunch:" + b);
+                searchW.textArea.setText("");
+                watchPkg = b;
+                watchMode = true;
+                FilterMode = FILTER_WATCH;
+                find.setSelected(true);
+                searchW.container.setVisible(true);
+                splitPane.setDividerLocation(splitPane.getWidth()/2);
+            }
     }
 
     long parseMills(String date){
@@ -299,7 +343,7 @@ public class window_logcat extends Thread implements I_Window {
             new SmartScroller(scrollPane);
             container.add(scrollPane,BorderLayout.CENTER);
 
-            textArea.setFont(new Font("Fixedsys",Font.PLAIN,10));
+            textArea.setFont(new Font("JetBrains Mono Regular",Font.PLAIN,10));
             textArea.setBackground(new Color(43,43,43));
             textArea.setForeground(Color.LIGHT_GRAY);
             textArea.setEditable(false);

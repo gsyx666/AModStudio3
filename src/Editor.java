@@ -8,8 +8,7 @@ import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 
 import javax.swing.*;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -93,7 +92,8 @@ class Editor {
         toolBar.setMaximumSize(new Dimension(mainWindow.getWidth(), 20));
         ui.rightBar.setVisible(false);
         ui.bottomBar.setVisible(false);
-        ui.statusBar.add(statusBarPanel.getView());
+        ui.statusBar.setLayout(new BorderLayout());
+        ui.statusBar.add(statusBarPanel.getView(),BorderLayout.WEST);
 
         //============================= : Load Windows : ========================
 
@@ -128,9 +128,9 @@ class Editor {
     public void settingChanged(I_Window window,String a,String b,Object c){
         System.out.println(I_Window.class.getName() + ": SETTING CHANGED:" + a + " : " + b);
         for (I_Window cls:loadedWindows) {
-            if(!cls.equals(window)){
+            //if(!cls.equals(window)){
                 cls.onSettingChanged(a,b,c);
-            }
+            //}
         }
     }
 

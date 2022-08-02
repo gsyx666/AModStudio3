@@ -82,9 +82,12 @@ public class mod_apkUtils extends super_MenuInterface implements I_itct {
         }
     }
     public void loadProject(String lastProject){
+        if(lastProject==null){return;}
         mainWin.mainWindow.setTitle(mainwin.getVersion() + " : " + lastProject);
         mainWin.fileTree.fileTree.setModel(new FileSystemModel(new File(lastProject)));
-        String[] tmp = Objects.requireNonNull(LIb_apkFunctions.parsePackageAndMainActivity(lastProject + "\\AndroidManifest.xml")).split(";");
+        String pa = LIb_apkFunctions.parsePackageAndMainActivity(lastProject + "\\AndroidManifest.xml");
+        if(pa==null){return;}
+        String[] tmp = pa.split(";");
         mainWin.vars.put("packageName",tmp[0]);
         mainWin.vars.put("mainClass",tmp[1]);
     }

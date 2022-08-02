@@ -87,6 +87,7 @@ public class Thread_compileAndInstall extends Thread{
             showTakenTime("Uninstall And Then Install");
         }
         itctl.onProgress("task",-1,"Launching Application......");
+        itctl.onProgress("setting",_packageName,null);
         result = utils.runFastTool(new String[]{_adbpath,"shell","am","start","-n",_packageName + "/" + _MainClass});//adb shell am start -n $p/$a
         System.out.println(result);
 

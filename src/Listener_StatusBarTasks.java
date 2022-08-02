@@ -60,6 +60,10 @@ public class Listener_StatusBarTasks implements I_itct {
                     mainWin.vars.put("mainClass",inffo[1]);
                 }
             }
+            case "setting" ->{
+                String pkg = (String) detail;
+                mainWin.settingChanged(null,"app_launched",pkg,null);
+            }
         }
 
     }

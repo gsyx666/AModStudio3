@@ -52,7 +52,7 @@ public class TabbedFileEditor extends JTabbedPane {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        font = new Font("JetBrains Mono",Font.PLAIN,14);
+        font = new Font("JetBrains Mono Regular",Font.PLAIN,14);
         theme.baseFont = font;
     }
     public void addFile(String filepath){
