@@ -82,5 +82,5 @@ public class ApktoolProperties {
 
     private static Properties sProps;
 
-    private static final Logger LOGGER = Logger.getLogger(ApktoolProperties.class.getName());
+    //private static final Logger LOGGER = Logger.getLogger(ApktoolProperties.class.getName());
 }

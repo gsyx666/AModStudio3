@@ -32,16 +32,7 @@ public class mod_MainMenu extends super_MenuInterface {
             mainWin.javaView.taJava.setText("");
         }//*/
     }
-    public void convertToJava(String smali){
-        String dex = "C:\\Users\\MbPCM\\Desktop\\tmp.dex";
-        boolean ret = false;
-        try {
-            ManojTools.smaliToDexFast(smali,dex);
-            mainWin.javaView.taJava.setData(ManojTools.DexToJava(dex),"java");
-        } catch (Exception e) {
-            utils.ErrorBox("Compile Error",e.getMessage() + "\nCause:" +  e.getClass() + "\n" + e.getCause());
-        }
-    }
+
 
 
 }

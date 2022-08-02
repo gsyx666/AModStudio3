@@ -17,6 +17,7 @@
 package brut.androlib.res.data;
 
 import brut.androlib.AndrolibException;
+import brut.androlib.LOGGER;
 import brut.androlib.err.UndefinedResObjectException;
 import brut.androlib.res.data.value.ResFileValue;
 import brut.androlib.res.data.value.ResValueFactory;
@@ -185,5 +186,5 @@ public class ResPackage {
         return mValueFactory;
     }
 
-    private final static Logger LOGGER = Logger.getLogger(ResPackage.class.getName());
+    //private final static Logger LOGGER = Logger.getLogger(ResPackage.class.getName());
 }

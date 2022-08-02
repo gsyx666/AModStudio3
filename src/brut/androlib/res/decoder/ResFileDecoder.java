@@ -17,6 +17,7 @@
 package brut.androlib.res.decoder;
 
 import brut.androlib.AndrolibException;
+import brut.androlib.LOGGER;
 import brut.androlib.err.CantFind9PatchChunkException;
 import brut.androlib.err.RawXmlEncounteredException;
 import brut.androlib.res.data.ResResource;
@@ -164,7 +165,7 @@ public class ResFileDecoder {
         }
     }
 
-    private final static Logger LOGGER = Logger.getLogger(ResFileDecoder.class.getName());
+    //private final static Logger LOGGER = Logger.getLogger(ResFileDecoder.class.getName());
 
     private final static String[] RAW_IMAGE_EXTENSIONS = new String[] {
         "m4a", // apple

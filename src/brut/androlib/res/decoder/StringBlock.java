@@ -16,6 +16,7 @@
  */
 package brut.androlib.res.decoder;
 
+import brut.androlib.LOGGER;
 import brut.androlib.res.xml.ResXmlEncoders;
 import brut.util.ExtDataInput;
 import com.google.common.annotations.VisibleForTesting;
@@ -435,7 +436,7 @@ public class StringBlock {
     private final CharsetDecoder UTF16LE_DECODER = StandardCharsets.UTF_16LE.newDecoder();
     private final CharsetDecoder UTF8_DECODER = StandardCharsets.UTF_8.newDecoder();
     private final CharsetDecoder CESU8_DECODER = Charset.forName("CESU8").newDecoder();
-    private static final Logger LOGGER = Logger.getLogger(StringBlock.class.getName());
+   // private static final Logger LOGGER = Logger.getLogger(StringBlock.class.getName());
 
     // ResChunk_header = header.type (0x0001) + header.headerSize (0x001C)
     private static final int CHUNK_STRINGPOOL_TYPE = 0x001C0001;

@@ -16,8 +16,9 @@
  */
 package brut.androlib.res.decoder;
 
-import android.util.TypedValue;
+import brut.util.TypedValue;
 import brut.androlib.AndrolibException;
+import brut.androlib.LOGGER;
 import brut.androlib.res.data.*;
 import brut.androlib.res.data.value.*;
 import brut.util.Duo;
@@ -34,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class ARSCDecoder {
     public static ARSCData decode(InputStream arscStream, boolean findFlagsOffsets, boolean keepBroken)
@@ -624,7 +624,7 @@ public class ARSCDecoder {
         public ResValue mValue;
     }
 
-    private static final Logger LOGGER = Logger.getLogger(ARSCDecoder.class.getName());
+    //private static final Logger LOGGER = Logger.getLogger(ARSCDecoder.class.getName());
     private static final int KNOWN_CONFIG_BYTES = 56;
 
     public static class ARSCData {

@@ -17,6 +17,7 @@
 package brut.androlib.res.xml;
 
 import brut.androlib.AndrolibException;
+import brut.androlib.LOGGER;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -353,5 +354,5 @@ public final class ResXmlPatcher {
     private static final String FEATURE_LOAD_DTD = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
     private static final String FEATURE_DISABLE_DOCTYPE_DECL = "http://apache.org/xml/features/disallow-doctype-decl";
 
-    private static final Logger LOGGER = Logger.getLogger(ResXmlPatcher.class.getName());
+    //private static final Logger LOGGER = Logger.getLogger(ResXmlPatcher.class.getName());
 }

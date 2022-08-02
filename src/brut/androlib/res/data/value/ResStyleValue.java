@@ -17,6 +17,7 @@
 package brut.androlib.res.data.value;
 
 import brut.androlib.AndrolibException;
+import brut.androlib.LOGGER;
 import brut.androlib.res.data.ResResSpec;
 import brut.androlib.res.data.ResResource;
 import brut.androlib.res.xml.ResValuesXmlSerializable;
@@ -90,5 +91,5 @@ public class ResStyleValue extends ResBagValue implements
 
     private final Duo<ResReferenceValue, ResScalarValue>[] mItems;
 
-    private static final Logger LOGGER = Logger.getLogger(ResStyleValue.class.getName());
+    //private static final Logger LOGGER = Logger.getLogger(ResStyleValue.class.getName());
 }

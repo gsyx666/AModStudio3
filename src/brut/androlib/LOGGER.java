@@ -20,4 +20,7 @@ public class LOGGER {
     public static void finest(String msg) {
         System.out.println("OK : " + msg);
     }
+    public static void log(Level level,String msg,Throwable throwable) {
+        System.out.println("OK : " + msg);
+    }
 }

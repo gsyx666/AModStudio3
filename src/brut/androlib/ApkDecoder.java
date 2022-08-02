@@ -447,7 +447,7 @@ public class ApkDecoder {
 
     private final Androlib mAndrolib;
 
-    private final static Logger LOGGER = Logger.getLogger(Androlib.class.getName());
+    //private final static Logger LOGGER = Logger.getLogger(Androlib.class.getName());
 
     private ExtFile mApkFile;
     private File mOutDir;

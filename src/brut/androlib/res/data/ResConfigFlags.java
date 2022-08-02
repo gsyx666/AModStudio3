@@ -16,6 +16,8 @@
  */
 package brut.androlib.res.data;
 
+import brut.androlib.LOGGER;
+
 import java.util.logging.Logger;
 
 public class ResConfigFlags {
@@ -648,5 +650,5 @@ public class ResConfigFlags {
     public final static byte COLOR_WIDE_YES = 0x2;
     public final static byte COLOR_WIDE_MASK = 0x3;
 
-    private static final Logger LOGGER = Logger.getLogger(ResConfigFlags.class.getName());
+    //private static final Logger LOGGER = Logger.getLogger(ResConfigFlags.class.getName());
 }

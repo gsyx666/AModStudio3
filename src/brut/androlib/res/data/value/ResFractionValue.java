@@ -16,7 +16,7 @@
  */
 package brut.androlib.res.data.value;
 
-import android.util.TypedValue;
+import brut.util.TypedValue;
 import brut.androlib.AndrolibException;
 
 public class ResFractionValue extends ResIntValue {

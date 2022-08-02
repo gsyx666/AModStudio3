@@ -36,9 +36,9 @@ class Editor {
     List<I_Window> loadedWindows = new ArrayList<>();
     //boolean developmentMode = true;
     public static void main(String[] args) {
-        //FlatDarkLaf.setup();
-        //FlatIntelliJLaf.setup();
-        //FlatLightLaf.setup();
+        // FlatDarkLaf.setup();
+        // FlatIntelliJLaf.setup();
+        // FlatLightLaf.setup();
         FlatDarculaLaf.setup();
         thisClass = new Editor();
 
@@ -48,7 +48,7 @@ class Editor {
     }
     void initComponents() {
         ui = new ManojUI();
-        mainEditor = new window_main();
+        mainEditor = new window_main(this);
         mainWindow = ui.f;
         menuBar = ui.menuBar;
         toolBar = ui.toolBar;
@@ -57,7 +57,7 @@ class Editor {
     }
 
     void initPlugins() {
-        fileTree = new window_fileTree(ui,mainEditor.tabbedFileEditor);
+        fileTree = new window_fileTree(this,mainEditor.tabbedFileEditor);
         defaultMenus = new mod_defaultMenus(this);
         apkUtils = new mod_apkUtils(this);
         adbUtils = new mod_adbUtils(this);
@@ -65,7 +65,7 @@ class Editor {
         logwindow = new window_log();
         mainMenu = new mod_MainMenu(this);
         statusBarTasks = new Listener_StatusBarTasks(this);
-        javaView = new window_JavaView(ui);
+        javaView = new window_JavaView(this);
         statusBarPanel = new Bar_Status();
         logcat = new window_logcat(ui);
         wmgr = new WindowManager(ui);

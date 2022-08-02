@@ -38,7 +38,12 @@ public class TabbedFileEditor extends JTabbedPane {
     public HashMap<String,String> syntaxMap = new HashMap<>();
     public Theme theme;
     public Font font;
+    private TabbedPaneAction _tabbedPaneAction = null;
     public TabbedFileEditor(){
+        this(null);
+    }
+    public TabbedFileEditor(TabbedPaneAction tabbedPaneAction){
+        _tabbedPaneAction = tabbedPaneAction;
         fillHashMap();
         this.setUI(new FlatTabbedPaneUI() {
             @Override
@@ -52,8 +57,11 @@ public class TabbedFileEditor extends JTabbedPane {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        font = new Font("JetBrains Mono Regular",Font.PLAIN,14);
+        font = new Font("JetBrains Mono Regular",Font.PLAIN,10);
         theme.baseFont = font;
+    }
+    public interface TabbedPaneAction{
+        public abstract void onAction(String action,Object data);
     }
     public void addFile(String filepath){
         addFile_(filepath,null,false);
@@ -70,7 +78,7 @@ public class TabbedFileEditor extends JTabbedPane {
         String filename = Paths.get(filepath).getFileName().toString();
         String fileExtension = getExtension(filepath).toLowerCase();
         RSyntaxTextArea rSyntaxTextArea = new RSyntaxTextArea();
-
+        rSyntaxTextArea.setFont(font);
 
         if(syntaxMap.containsKey(fileExtension)) {
             rSyntaxTextArea.setSyntaxEditingStyle(syntaxMap.get(fileExtension));
@@ -78,7 +86,7 @@ public class TabbedFileEditor extends JTabbedPane {
         theme.apply(rSyntaxTextArea);
         rSyntaxTextArea.setCurrentLineHighlightColor(Color.BLACK);
         rSyntaxTextArea.setSelectionColor(Color.BLUE);
-        rSyntaxTextArea.setMarkAllHighlightColor(new Color(0x237F8A));
+        rSyntaxTextArea.setMarkAllHighlightColor(new Color(0x0D293E));
         if(stringsrc) {
             rSyntaxTextArea.setText(filecontent);
         }else{
@@ -91,6 +99,9 @@ public class TabbedFileEditor extends JTabbedPane {
                             String filepath1 = (String) rSyntaxTextArea1.getClientProperty("filepath");
                             try {
                                 Files.writeString(Paths.get(filepath1),rSyntaxTextArea1.getText());
+                                if(_tabbedPaneAction!=null){
+                                    _tabbedPaneAction.onAction("file_saved",filepath1);
+                                }
                                 System.out.println("File Saved: " + filepath1);
                             } catch (IOException ex) {
                                 ex.printStackTrace();

@@ -16,6 +16,7 @@
  */
 package brut.directory;
 
+import brut.androlib.LOGGER;
 import brut.common.BrutException;
 import brut.common.InvalidUnknownFileException;
 import brut.common.RootUnknownFileException;
@@ -29,7 +30,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 public class DirUtil {
-    private static final Logger LOGGER = Logger.getLogger("");
+    //private static final Logger LOGGER = Logger.getLogger("");
 
     private DirUtil() {
         // Private constructor for utility class

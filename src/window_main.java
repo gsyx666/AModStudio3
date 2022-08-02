@@ -7,8 +7,13 @@ import javax.swing.*;
 public class window_main implements I_Window {
     TabbedFileEditor tabbedFileEditor;
     JToggleButton toggleMain;
-    window_main(){
-        tabbedFileEditor = new TabbedFileEditor();
+    window_main(Editor editor){
+        tabbedFileEditor = new TabbedFileEditor(new TabbedFileEditor.TabbedPaneAction() {
+            @Override
+            public void onAction(String action, Object data) {
+                editor.settingChanged(null,action,(String)data,null);
+            }
+        });
         toggleMain = ManojUI.getVerticalButton("Editor",true);
         toggleMain.setSelected(true);
         toggleMain.setEnabled(false);
