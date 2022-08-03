@@ -41,7 +41,7 @@ public class window_fileTree implements I_Window {
                 if (e.getClickCount() == 2) {
                     File file = (File) fileTree.getLastSelectedPathComponent();
                     if(file!=null && file.isFile()) {
-                        tabbedFileEditor.addFile(file.getAbsolutePath());
+                        //tabbedFileEditor.addFile(file.getAbsolutePath());
                         editor.settingChanged(null,"file_opened",file.getAbsolutePath(),null);
                     }
                 }

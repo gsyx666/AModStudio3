@@ -11,13 +11,13 @@ import org.fife.ui.rtextarea.SearchResult;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -39,18 +39,30 @@ public class TabbedFileEditor extends JTabbedPane {
     public Theme theme;
     public Font font;
     private TabbedPaneAction _tabbedPaneAction = null;
+    private String hoverTab = "";
     public TabbedFileEditor(){
         this(null);
     }
     public TabbedFileEditor(TabbedPaneAction tabbedPaneAction){
+        UIManager.put("TabbedPane.tabInsets", new Insets(1,8,1,2) );
+        UIManager.put("TabbedPane.selectedBackground",new Color(2, 23, 72));
+        UIManager.put("TabbedPane.hoverColor",Color.BLACK);
+        //UIManager.put("TabbedPane.focusColor",new Color(4, 39, 108));
         _tabbedPaneAction = tabbedPaneAction;
         fillHashMap();
         this.setUI(new FlatTabbedPaneUI() {
             @Override
             protected int calculateTabHeight(int tabPlacement, int tabIndex, int fontHeight) {
-                return 24; // manipulate this number however you please.
+                return 23;
             }
         });
+        this.addChangeListener(e -> {
+            int index = getSelectedIndex();
+            if(index>0){
+                _tabbedPaneAction.onAction("file_changed", getTitleAt(index));
+            }
+        });
+
         this.setBorder(BorderFactory.createEmptyBorder());
         try {
             theme = Theme.load(getClass().getResourceAsStream("/org/fife/ui/rsyntaxtextarea/themes/monokai.xml"));
@@ -59,6 +71,7 @@ public class TabbedFileEditor extends JTabbedPane {
         }
         font = new Font("JetBrains Mono Regular",Font.PLAIN,10);
         theme.baseFont = font;
+        this.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
     }
     public interface TabbedPaneAction{
         public abstract void onAction(String action,Object data);
@@ -69,6 +82,7 @@ public class TabbedFileEditor extends JTabbedPane {
     public void addFile(String id, String content){
         addFile_(id,content,true);
     }
+
     private void addFile_(String filepath,String filecontent,boolean stringsrc){
         int index = this.indexOfTab(filepath);
         if(index > -1){
@@ -77,6 +91,16 @@ public class TabbedFileEditor extends JTabbedPane {
         }
         String filename = Paths.get(filepath).getFileName().toString();
         String fileExtension = getExtension(filepath).toLowerCase();
+        if(!fileExtension.equals("yml")) {
+            if (!stringsrc && isBinaryFile(new File(filepath))) {
+                try {
+                    Runtime.getRuntime().exec("CMD /C \"" + filepath + "\"");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                return;
+            }
+        }
         RSyntaxTextArea rSyntaxTextArea = new RSyntaxTextArea();
         rSyntaxTextArea.setFont(font);
 
@@ -149,7 +173,43 @@ public class TabbedFileEditor extends JTabbedPane {
 
         index = this.indexOfTab(filepath);
 
+        //----------------------------------------
+        final JPopupMenu popupmenu = new JPopupMenu("Edit");
+        JMenuItem cut = new JMenuItem("Close Others");
+        cut.addActionListener(e -> {
+            while(getTabCount()>1) {
+                for (int i = 0; i < getTabCount(); i++) {
+                    if (!getTitleAt(i).equals(hoverTab)) {
+                        removeTabAt(i);
+                    }
+                }
+            }
+        });
+        JMenuItem copy = new JMenuItem("Close All");
+        copy.addActionListener(e -> removeAll());
+        popupmenu.add(cut); popupmenu.add(copy);
+
         JPanel pnlTab = new JPanel();
+        pnlTab.putClientProperty("id",filepath);
+        pnlTab.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                JPanel panel = (JPanel) e.getSource();
+                String title = (String) panel.getClientProperty("id");
+                setSelectedIndex(indexOfTab(title));
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
+                JPanel panel = (JPanel) e.getSource();
+                hoverTab = (String) panel.getClientProperty("id");
+                System.out.println(hoverTab);
+            }
+        });
+        pnlTab.setComponentPopupMenu(popupmenu);
+        pnlTab.setLayout(new BoxLayout(pnlTab,BoxLayout.X_AXIS));
         pnlTab.setOpaque(false);
         pnlTab.setBackground(Color.lightGray);
 
@@ -159,10 +219,8 @@ public class TabbedFileEditor extends JTabbedPane {
             lblTitle.setIcon(getFileIcon(filename));
         }
 
-        pnlTab.add(lblTitle,BorderLayout.CENTER);
 
-        JButton btnClose = new JButton("x");
-        btnClose.setBorder(new uiUtils.RoundedBorder2(UIManager.getColor("Panel.background"),1,15));
+        CloseButton btnClose = new CloseButton();
         btnClose.putClientProperty("id",filepath);
 
         btnClose.addActionListener(e -> {
@@ -172,9 +230,12 @@ public class TabbedFileEditor extends JTabbedPane {
                 this.removeTabAt(this.indexOfTab(strID));
             }
         });
-        pnlTab.add(btnClose,BorderLayout.EAST);
-
+        pnlTab.setToolTipText(filepath);
+        pnlTab.add(lblTitle);
+        pnlTab.add(createHorizontalStrut(5));
+        pnlTab.add(btnClose);
         this.setTabComponentAt(index, pnlTab);
+        //----------------------------------------
         this.setSelectedIndex(index);
     }
     private Icon getFileIcon(String name){
@@ -221,7 +282,7 @@ public class TabbedFileEditor extends JTabbedPane {
     }
     private JPanel getSearchPannel(RSyntaxTextArea rt){
         rt.putClientProperty("curr",0);
-        Color themeColor = new Color(69,73,74);
+        Color themeColor = new Color(40, 40, 80);
         JPanel jPanel = new JPanel(new BorderLayout());
         JPanel searchBox = new JPanel();
         JPanel resultBox = new JPanel();
@@ -310,39 +371,19 @@ public class TabbedFileEditor extends JTabbedPane {
         JTextField inputReplace = new JTextField();
         inputReplace.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         JButton replaceSingle = getJButton("Replace");
-        replaceSingle.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                resultLabel.setText(replaceText(rt,searchTextBox.getText(),inputReplace.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true));
-            }
-        });
+        replaceSingle.addActionListener(e -> resultLabel.setText(replaceText(rt,searchTextBox.getText(),inputReplace.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true)));
         JButton replaceAll = getJButton("ReplaceAll");
-        replaceAll.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                resultLabel.setText(replaceAll(rt,searchTextBox.getText(),inputReplace.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true));
-            }
-        });
+        replaceAll.addActionListener(e -> resultLabel.setText(replaceAll(rt,searchTextBox.getText(),inputReplace.getText(),Cc.isSelected(),regex.isSelected(),W.isSelected(),true)));
         replaceBox.add(inputReplace);
         replaceBox.add(replaceSingle);
         replaceBox.add(replaceAll);
 
 
-
-
-        //Close Button makubha makusa
-        JButton close = new JButton("x");
-        close.setBorder(BorderFactory.createEmptyBorder());
-        close.setBackground(jPanel.getBackground());
-        close.setForeground(new Color(0xB0B0F8));
-        //close.addActionListener(e -> jPanel.setVisible(false));
-        close.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                jPanel.setVisible(false);
-                rt.putClientProperty("lastS",searchTextBox.getText());
-                searchTextBox.setText("");
-            }
+        CloseButton close = new CloseButton();
+        close.addActionListener(e -> {
+            jPanel.setVisible(false);
+            rt.putClientProperty("lastS",searchTextBox.getText());
+            searchTextBox.setText("");
         });
         replaceBox.add(close);
         replaceBox.setPreferredSize(new Dimension(400,Integer.MAX_VALUE));
@@ -459,7 +500,15 @@ public class TabbedFileEditor extends JTabbedPane {
         syntaxMap.put("unix","text/unix");
 
     }
-
-
-
+    boolean isBinaryFile(File f) {
+        String type = null;
+        try {
+            type = Files.probeContentType(f.toPath());
+        } catch (IOException e) {
+            return false;
+        }
+        if (type == null) {
+            return false;
+        } else return !type.startsWith("text");
+    }
 }

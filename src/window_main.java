@@ -8,11 +8,9 @@ public class window_main implements I_Window {
     TabbedFileEditor tabbedFileEditor;
     JToggleButton toggleMain;
     window_main(Editor editor){
-        tabbedFileEditor = new TabbedFileEditor(new TabbedFileEditor.TabbedPaneAction() {
-            @Override
-            public void onAction(String action, Object data) {
-                editor.settingChanged(null,action,(String)data,null);
-            }
+        tabbedFileEditor = new TabbedFileEditor((action, data) -> {
+            editor.settingChanged(null,action,(String)data,null);
+            editor.vars.put(action,(String) data);
         });
         toggleMain = ManojUI.getVerticalButton("Editor",true);
         toggleMain.setSelected(true);
@@ -40,6 +38,8 @@ public class window_main implements I_Window {
 
     @Override
     public void onSettingChanged(String a, String b, Object c) {
-
+        if(a.equals("file_opened")){
+            tabbedFileEditor.addFile(b);
+        }
     }
 }

@@ -36,10 +36,14 @@ class Editor {
     List<I_Window> loadedWindows = new ArrayList<>();
     //boolean developmentMode = true;
     public static void main(String[] args) {
+
         // FlatDarkLaf.setup();
         // FlatIntelliJLaf.setup();
         // FlatLightLaf.setup();
+        //UIManager.put("TabbedPane:TabbedPaneTab.contentMargins", new Insets(10, 100, 0, 0));
+
         FlatDarculaLaf.setup();
+        //UIManager.put("TabbedPane:TabbedPaneTab.contentMargins", new Insets(10, 100, 0, 0));
         thisClass = new Editor();
 
     }

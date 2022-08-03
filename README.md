@@ -10,7 +10,7 @@ from the time i started this project [15-16 JUNE 2022] , i didnt find any softwa
 - `DONE` : Smali Syntax Highlighting
 - `DONE` : SplitApk zip Support: By Merging All Splitted Apk's `[Still Buggy]`
 - `DONE` : IntelliJ like Dark Themed Modular GUI.
-  - `TODO` : Icons for Tabs,Buttons
+  - `DONE` : Icons for Tabs,Buttons
   - `TODO` : Selected Tab Background Color.
   - `TODO` : A Nice Font
 - `TODO` : ReadMe
@@ -23,7 +23,7 @@ from the time i started this project [15-16 JUNE 2022] , i didnt find any softwa
   - `TODO` : Search Option
   - `TODO` : Select Error/Warning/.. only
   - `TODO` : Select Package.
-  - `TODO` : Basic Run Winodw..
+  - `DONE` : Basic Run Winodw..
   - `TODO` : Select Device Support
 - `TODO` : Method And Field Parser Selector Bar.
 - `TODO` : Smali Syntax Checking before compilation.
@@ -38,4 +38,5 @@ from the time i started this project [15-16 JUNE 2022] , i didnt find any softwa
 #### BUGS And PROBLEMS:
 - `[Fixed]` : Nox Running But Not Showing in Device List.. Fixed using "adb connect"
 - `[BUG]` : Split Apk crashes when run.
+- `PROBLEM` : Font on tabbed File Viewer Not Effective . WHY?
 

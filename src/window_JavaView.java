@@ -44,7 +44,7 @@ public class window_JavaView implements I_Window {
 
     @Override
     public void onSettingChanged(String a, String b, Object c) {
-        if(a.equals("file_saved") || a.equals("file_opened")){
+        if(a.equals("file_saved") || a.equals("file_changed")){
             if(b.endsWith(".smali")){
                 new toJava(b).start();
                 System.out.println("Converted To Java");
@@ -52,9 +52,6 @@ public class window_JavaView implements I_Window {
                 taJava.setText("");
             }
         }
-
-    }
-    public void convertToJava(String smali){
 
     }
     private class toJava extends Thread{

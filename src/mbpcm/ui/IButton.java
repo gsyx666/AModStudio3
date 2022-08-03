@@ -11,22 +11,23 @@ import java.awt.geom.Rectangle2D;
 
 public class IButton extends JButton implements MouseListener
 {
-    Image image_ = null;
-    String text_= null;
-    String res_ = "";
-    int paddingH = 6;
-    int paddingV = 5;
-    int gap = 4;
-    int hoverDarkness = 20; //Normal + ....
-    int pressDarkness = 20;
-    int iWidth = 0;
-    int iHeight = 0;
-    int textHeight=0;
-    int textWidth=0;
-    int bWidth = 24;
-    int bHeight = 24;
-    int arcWidth = 7;
-    int arcHeight = 7;
+    public Image image_ = null;
+    public String text_= null;
+    public String res_ = "";
+    public int paddingH = 6;
+    public int paddingV = 5;
+    public int gap = 4;
+    public int hoverDarkness = 20; //Normal + ....
+    public int pressDarkness = 20;
+    public int iWidth = 0;
+    public int iHeight = 0;
+    public int textHeight=0;
+    public int textWidth=0;
+    public int bWidth = 24;
+    public int bHeight = 24;
+    public int arcWidth = 7;
+    public int arcHeight = 7;
+    Font font;
     Color backgroundNormal = UIManager.getColor("Panel.background");
     Color hover = new Color(backgroundNormal.getRed()+ hoverDarkness,backgroundNormal.getGreen()+ hoverDarkness,backgroundNormal.getBlue()+ hoverDarkness);
     Color pressed = new Color(hover.getRed()+ pressDarkness,hover.getGreen()+ pressDarkness,hover.getBlue()+ pressDarkness);
@@ -43,6 +44,7 @@ public class IButton extends JButton implements MouseListener
         setVisible(true);
         this.setMaximumSize(new Dimension(bWidth,bHeight));
         this.setBackground(backgroundNormal); //new Color(0,true)
+        font = this.getFont();
     }
     public IButton(Image res){
         this(res,null);
@@ -63,16 +65,17 @@ public class IButton extends JButton implements MouseListener
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g2.setColor(getBackground());
-        g2.fillRoundRect(0, 0, width-1, height-1, arcWidth, arcHeight);//paint background
+        g2.fillRoundRect(0, 0, bWidth, bHeight, arcWidth, arcHeight);//paint background
         if(image_!=null){
             g2.drawImage(image_, paddingH, (bHeight - iHeight) / 2, null);
         }
         if(text_!=null){
+            //g2.setFont(font);
             g2.setColor(getForeground());
             g2.drawString(text_,paddingH + gap + iWidth,paddingV + (int)(textHeight*0.75)); //TODO: why 0.78 is magical?
         }
     }
-    private void calculateWH(){
+    public void calculateWH(){
         int W = 0;int H=0;
 
         if(image_!=null){
@@ -91,7 +94,8 @@ public class IButton extends JButton implements MouseListener
         if(image_!=null && text_!=null){
             bWidth += gap;
         }
-        if(image_==null & text_!=null){
+        if(image_==null && text_!=null){
+            //gap=0;
             bWidth += paddingH;
         }
 
