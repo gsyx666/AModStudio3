@@ -46,6 +46,7 @@ public class ZipUtils {
         if (assets != null) {
             processFolder(assets, zipOutputStream, assets.getPath().length() - 6);
         }
+
         zipOutputStream.close();
     }
 

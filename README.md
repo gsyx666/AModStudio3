@@ -10,26 +10,23 @@ from the time i started this project [15-16 JUNE 2022] , i didnt find any softwa
 - `DONE` : Smali Syntax Highlighting
 - `DONE` : SplitApk zip Support: By Merging All Splitted Apk's `[Still Buggy]`
 - `DONE` : IntelliJ like Dark Themed Modular GUI.
-  - `DONE` : Icons for Tabs,Buttons
-  - `TODO` : Selected Tab Background Color.
-  - `TODO` : A Nice Font
 - `TODO` : ReadMe
   - `TODO` : Screenshot of GUI
   - `TODO` : Project Structure for Code Contributers
   - `TODO` : A Basic How To:
-- `[WORKING ON]` : LogCat And Run Window.
+- `[TODO]` : LogCat And Run Window.
   - `DONE` : Basic Logcat Window
   - `DONE` : Color Errors, Warnings..
+  - `DONE` : Basic Run Winodw..
   - `TODO` : Search Option
   - `TODO` : Select Error/Warning/.. only
   - `TODO` : Select Package.
-  - `DONE` : Basic Run Winodw..
   - `TODO` : Select Device Support
 - `TODO` : Method And Field Parser Selector Bar.
-- `TODO` : Smali Syntax Checking before compilation.
-- `TODO` : Reference Finder and Static Analysis
-
-- `TODO` : Manual Renaming of Methods And Functions for Complete DeObsfucation
+- `[WORKING ON]` : Smali Syntax Checking before compilation.
+- `[WORKING ON]` : Reference Finder and Static Analysis
+- `[WORKING ON]` : in-place APK Editor (dexEditor.java)
+- `[WORKING ON]` : Manual Renaming of Methods And Functions for Complete DeObsfucation
 - `TODO` : Python Plugin Interface
 - `TODO` : Custom Code Snippet Injection Tool.
 - `TODO` : package Remover with Reference Finder.
