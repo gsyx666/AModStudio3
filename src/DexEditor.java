@@ -18,6 +18,10 @@ import org.jf.smali.Smali;
 import org.jf.smali.SmaliOptions;
 
 import javax.annotation.Nonnull;
+import javax.swing.*;
+import javax.swing.event.TreeModelListener;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -25,16 +29,14 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static java.nio.file.FileSystems.newFileSystem;
 
 public class DexEditor {
+    JTree jTree;
     String mApkPath;
     String mApkFolder;
     String mLoadedDexPath;
@@ -43,28 +45,31 @@ public class DexEditor {
     DexBackedDexFile.IndexedSection<DexBackedClassDef> classDef;
     HashMap<String,Integer> classIndexMap = new HashMap<>();
     List<String> dexes = new ArrayList<>();
+    List<String> zipContent = new ArrayList<>();
+    FileSystem fs;
     int apiLevel = 28; //TODO: auto Detection
-    DexEditor(){
+    DexEditor(JTree filetree){
+        jTree = filetree;
         int dexNo = 0;
         //dexFile = loadDexFile("");
-        String testAPK = "H:\\test.apk";
-        String testDex = "H:\\splitApks\\MoviesFree [1.2]-split\\base\\build\\apk\\classes.dex";
-        loadAPK(testAPK);
-        loadDexFromApk(dexes.get(dexNo));
+        //String testAPK = "H:\\test.apk";
+       // String testDex = "H:\\splitApks\\MoviesFree [1.2]-split\\base\\build\\apk\\classes.dex";
+        //loadAPK(mApkPath);
+        //loadDexFromApk(dexes.get(dexNo));
         //loadDexDirect(testDex);
         //System.out.println(getSmaliCode(1));
-        getMethods(1);
-        getFields(1);
-        String smali = getSmaliCode(0);
-        smali = smali.replace("dec2021","aug2022");
-        System.out.println(smali);
-        compileAndMerge(mLoadedDexPath,smali);
-        updateAPK(dexes.get(dexNo),outDex);
-        System.out.println("DONE");
+        //getMethods(1);
+        //getFields(1);
+        //String smali = getSmaliCode(0);
+        //smali = smali.replace("dec2021","aug2022");
+        //System.out.println(smali);
+        //compileAndMerge(mLoadedDexPath,smali);
+       // updateAPK(dexes.get(dexNo),outDex);
+        //System.out.println("DONE");
     }
-    public static void main(String[] args){
-        new DexEditor();
-    }
+    //public static void main(String[] args){
+       // new DexEditor();
+   // }
     public void updateAPK(String filename,String filepath){
         Path myFilePath = Paths.get(filepath);
         Path zipFilePath = Paths.get(mApkPath);
@@ -78,13 +83,18 @@ public class DexEditor {
     }
     public void loadAPK(String path){
         mApkPath = path;
+        jTree.setModel(new ApkModel(path));
         mApkFolder = path.substring(0,path.lastIndexOf("\\"));
         try(ZipFile zipFile = new ZipFile(mApkPath)) {
             zipFile.stream().map(ZipEntry::getName).forEach(s -> {
-                if(s.endsWith(".dex")){
-                    dexes.add(s);
-                }
+                zipContent.add(s);
             });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Path zipFilePath = Paths.get(mApkPath);
+        try {
+            fs = newFileSystem(zipFilePath, (ClassLoader) null);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -99,7 +109,7 @@ public class DexEditor {
         mLoadedDexPath = dexPath;
         dexFile = loadDexFile(dexPath);
         classDef = dexFile.getClassSection();
-
+        System.out.println(classDef.size());
         int i=0;
         for(DexBackedClassDef cd: classDef){
             classIndexMap.put(cd.getType(),i);
@@ -250,7 +260,7 @@ public class DexEditor {
 
                 dexEntry = DexFileFactory.loadDexEntry(file, dexEntryName, exactMatch, opcodes);
 
-                dexFile = (DexBackedDexFile) dexEntry.getDexFile();
+                dexFile = dexEntry.getDexFile();
             } catch (IOException var7) {
                 throw new RuntimeException(var7);
             }
@@ -282,5 +292,99 @@ public class DexEditor {
             }
         }
         return dexFile;
+    }
+    public class ApkModel implements TreeModel {
+        String[] list;
+        String mApkPath;
+        ApkModel(String path){
+            mApkPath = path;
+            try(ZipFile zipFile = new ZipFile(path)) {
+                list = zipFile.stream().map(ZipEntry::getName).toArray(String[]::new);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        @Override
+        public Object getRoot() {
+            return mApkPath;
+        }
+
+        @Override
+        public Object getChild(Object parent, int index) {
+            String p = (String) parent;
+            if(p.equals(mApkPath)){
+                return getList(list,"")[index];
+            }else if(p.endsWith(".dex")){
+                if(classDef==null) {
+                    loadDexFromApk(p);
+                }
+                return classDef.get(index).getType();
+            }else if(p.endsWith("/")){
+                return getList(list,p)[index];
+            }else{
+                return null;
+            }
+        }
+
+        @Override
+        public int getChildCount(Object parent) {
+            String p = (String) parent;
+            if(p.equals(mApkPath)){
+                return getList(list,"").length;
+            }else if(p.endsWith(".dex")){
+                if(classDef==null) {
+                    loadDexFromApk(p);
+                }
+                return classDef.size();
+            }else if(p.endsWith("/")){
+                return getList(list,p).length;
+            }else{
+                return 0;
+            }
+        }
+
+        @Override
+        public boolean isLeaf(Object node) {
+            String p = (String) node;
+            return !p.equals(mApkPath) && !p.endsWith(".dex") && !p.endsWith("/");
+        }
+
+        @Override
+        public void valueForPathChanged(TreePath path, Object newValue) {
+
+        }
+
+        @Override
+        public int getIndexOfChild(Object parent, Object child) {
+            return 0;
+        }
+
+        @Override
+        public void addTreeModelListener(TreeModelListener l) {
+
+        }
+
+        @Override
+        public void removeTreeModelListener(TreeModelListener l) {
+
+        }
+    }
+    String[] getList(String[] list,String folder){
+        List<String> all = new ArrayList<>();
+        Set<String> folders = new HashSet<>();
+        for(String path:list){
+            if(path.startsWith(folder)){
+                String newPath = path.substring(folder.length());
+                if(newPath.contains("/")){
+                    folders.add(folder + newPath.substring(0,newPath.indexOf('/')+1));
+                }else{
+                    all.add(path);
+                    //System.out.println("FILE: " + newPath);
+                }
+            }
+        }
+        //System.out.println("FOLDER:" + fol);
+        all.addAll(folders);
+        return all.toArray(String[]::new);
     }
 }

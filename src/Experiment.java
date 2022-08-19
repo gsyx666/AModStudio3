@@ -1,4 +1,6 @@
 import com.formdev.flatlaf.FlatDarkLaf;
+import jadx.core.utils.GsonUtils;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -96,17 +98,9 @@ public class Experiment {
                     }
                 }
             }
+
         }
         private void printBlock(String name,int start,int end){
-            /*
-            * Errors:
-            * 1. More than one occurance of .class etc.
-            * 2. Method filed name special characters.
-            *
-            *
-            * */
-            //System.out.println();
-            //System.out.println("===" + name + " start:" + start + "  end: " + end + "  " + lines.get(start));
             switch (name){
                 case "method" -> {
                    List<String> ret = parseByRegex(start,".method\\s+(.*)\\s+(.*?)\\((.*?)\\)(L(.*?);|[A-Z]{1})",5);
@@ -117,7 +111,7 @@ public class Experiment {
                                body += lines.get(i);
                            }
                        }
-                       Methods methods = new Methods(ret.get(0),ret.get(1),ret.get(2),ret.get(3),body);
+                       Methods methods = new Methods(ret.get(1),ret.get(0),ret.get(2),ret.get(3),body);
                        cls.methods.add(methods);
                        //System.out.println("Method:" + ret.get(1));
                    }else{
@@ -135,14 +129,21 @@ public class Experiment {
                                 }
                             }
                         }
-                        Fields fields = new Fields(ret.get(0),ret.get(1),ret.get(2),body);
+                        Fields fields = new Fields(ret.get(1),ret.get(0),ret.get(2),body);
                         cls.fields.add(fields);
                         //System.out.println("Field:" + ret.get(1));
                     }else{
                         System.out.println("[Line " + start + "] Invalid Field Declaration:" + lines.get(start));
                     }
                 }
-                case "source" -> {}
+                case "source" -> {
+                    List<String> ret = parseByRegex(start,".source\\s+\\\"((.*?))\\\"",2);
+                    if(ret!=null){
+                        cls.source = ret.get(0);
+                    }else{
+                        System.out.println("[Line " + start + "] Invalid Source Declaration" + lines.get(start));
+                    }
+                }
                 case "class" -> {
                     List<String> ret = parseByRegex(start,".class(.*)\\s+L((.*));",3);
                     if(ret!=null){
@@ -162,7 +163,14 @@ public class Experiment {
                         System.out.println("[Line " + start + "] Invalid extends Declaration:" + lines.get(start));
                     }
                 }
-                case "implements" -> {}
+                case "implements" -> {
+                    List<String> ret = parseByRegex(start,".implements\\s+L((.*?));",2);
+                    if(ret!=null){
+                        cls.implement.add(ret.get(0));
+                    }else{
+                        System.out.println("[Line " + start + "] Invalid Interface Declaration:" + lines.get(start));
+                    }
+                }
             }
         }
         private List<String> parseByRegex(int lineNo, String regex, int expectedGroups){

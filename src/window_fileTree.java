@@ -50,6 +50,7 @@ public class window_fileTree implements I_Window {
 
         fileTreeToggle = ManojUI.getVerticalButton("Project",true);
         fileTreeToggle.setSelected(true);
+
     }
     @Override
     public JComponent getWindow() {
@@ -79,8 +80,8 @@ public class window_fileTree implements I_Window {
         }
     }
     static class CustomIconRenderer extends DefaultTreeCellRenderer {
-        @Serial
-        private static final long serialVersionUID = 967937360839244309L;
+       // @Serial
+        //private static final long serialVersionUID = 967937360839244309L;
 
         public CustomIconRenderer(){
         }
