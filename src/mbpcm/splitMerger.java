@@ -22,6 +22,15 @@ import java.util.stream.Stream;
 import static java.nio.file.Files.walk;
 
 public class splitMerger {
+    /* ERRORS:
+    * 1. You Need To Define AppCompat.Theme... => Garuda. because styles.xml in drawable-xhdpi of split-xhdpi.apk.
+    * Lession - do not copy styles.xml, base.apk has enaugh styles
+    * 2. Failed to capture screenshot... app exit without warning.. => initFirebase() caused the problem.
+    * Lession - remove Firebase from app. we hackers never need it.
+    *
+    *
+    *
+    * */
     public static void MergeSplitAPK(String basePath,String[] otherFolders){
 
         System.out.println("Input basePath: " + basePath + " OtherFolders :" + otherFolders);
@@ -127,7 +136,7 @@ public class splitMerger {
 
     public static String[] enumFolders(String filepath){
         List<String> outlist = new ArrayList<>();
-        try(Stream<Path> walk =  Files.walk(Paths.get( filepath),1)) {
+        try(Stream<Path> walk =  Files.walk(Paths.get(filepath),1)) {
             walk
                     .filter(Files::isDirectory)
                     .forEach(path->outlist.add(path.toString()));

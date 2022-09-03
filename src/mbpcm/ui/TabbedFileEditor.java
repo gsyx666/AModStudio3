@@ -40,6 +40,7 @@ public class TabbedFileEditor extends JTabbedPane {
     public Font font;
     private TabbedPaneAction _tabbedPaneAction = null;
     private String hoverTab = "";
+    private HashMap<String,RSyntaxTextArea> textAreaStringHashMap = new HashMap<>();
     public TabbedFileEditor(){
         this(null);
     }
@@ -75,6 +76,12 @@ public class TabbedFileEditor extends JTabbedPane {
     }
     public interface TabbedPaneAction{
         public abstract void onAction(String action,Object data);
+    }
+    public RSyntaxTextArea getTextAreaByFilePath(String filepath){
+        return textAreaStringHashMap.getOrDefault(filepath, null);
+    }
+    public String getSelectedFilePath(){
+        return getTitleAt(getSelectedIndex());
     }
     public void addFile(String filepath){
         addFile_(filepath,null,false);
@@ -237,6 +244,9 @@ public class TabbedFileEditor extends JTabbedPane {
         this.setTabComponentAt(index, pnlTab);
         //----------------------------------------
         this.setSelectedIndex(index);
+        if(!stringsrc){
+            textAreaStringHashMap.put(filepath,rSyntaxTextArea); //add to hash map.
+        }
     }
     private Icon getFileIcon(String name){
         int index = name.lastIndexOf('.');

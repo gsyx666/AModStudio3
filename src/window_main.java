@@ -1,6 +1,7 @@
 import mbpcm.ui.I_Window;
 import mbpcm.ui.ManojUI;
 import mbpcm.ui.TabbedFileEditor;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import javax.swing.*;
 
@@ -40,6 +41,10 @@ public class window_main implements I_Window {
     public void onSettingChanged(String a, String b, Object c) {
         if(a.equals("file_opened")){
             tabbedFileEditor.addFile(b);
+        }else if(a.equals("tabbed_editor_goto_line")){
+            String filepath = tabbedFileEditor.getSelectedFilePath();
+            RSyntaxTextArea rSyntaxTextArea = tabbedFileEditor.getTextAreaByFilePath(filepath);
+            rSyntaxTextArea.setCaretPosition((int)c);
         }
     }
 }

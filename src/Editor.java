@@ -34,6 +34,7 @@ class Editor {
     window_logcat logcat;
     WindowManager wmgr;
     List<I_Window> loadedWindows = new ArrayList<>();
+    plugin_functionsBrowser functionsBrowser;
     //boolean developmentMode = true;
     public static void main(String[] args) {
 
@@ -73,6 +74,7 @@ class Editor {
         statusBarPanel = new Bar_Status();
         logcat = new window_logcat(ui);
         wmgr = new WindowManager(ui);
+        functionsBrowser = new plugin_functionsBrowser(this);
     }
 
     Editor() {
@@ -106,9 +108,12 @@ class Editor {
         loadedWindows.add(logcat);
         loadedWindows.add(javaView);
         loadedWindows.add(logwindow);
+        loadedWindows.add(functionsBrowser);
 
         for (I_Window cls:loadedWindows) {
-            wmgr.addWindow(cls.getWindowName(),cls.getWindow(),cls.getButton(),cls.getPrefPosition());
+            if(cls.getWindowName() != null) { //just plugins for other works.
+                wmgr.addWindow(cls.getWindowName(), cls.getWindow(), cls.getButton(), cls.getPrefPosition());
+            }
         }
         wmgr.finishAdding();
         //========================================================
@@ -118,6 +123,7 @@ class Editor {
 
         mainEditor.tabbedFileEditor.addFile("Welcome","This is AMod Studio v1.5\nAuthor: ManojBhakarPCM");
         //SwingUtilities.invokeLater(() -> apkUtils.getDevices());
+        settingChanged(null,"init",null,null);
 
     }
     protected JComponent makeTextPanel(String text) {
@@ -132,9 +138,7 @@ class Editor {
     public void settingChanged(I_Window window,String a,String b,Object c){
         System.out.println(I_Window.class.getName() + ": SETTING CHANGED:" + a + " : " + b);
         for (I_Window cls:loadedWindows) {
-            //if(!cls.equals(window)){
-                cls.onSettingChanged(a,b,c);
-            //}
+            cls.onSettingChanged(a,b,c);
         }
     }
 
