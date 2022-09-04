@@ -2,22 +2,19 @@ import mbpcm.ui.I_Window;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class plugin_functionsBrowser implements I_Window {
+public class plugin_smaliHelper implements I_Window {
     Editor editor_;
     boolean lock = false;
     JComboBox<String> methods;
     HashMap<String,Integer> nameLocationMap = new HashMap<>();
-    plugin_functionsBrowser(Editor editor){
+    plugin_smaliHelper(Editor editor){
         editor_ = editor;
     }
     @Override
@@ -52,12 +49,12 @@ public class plugin_functionsBrowser implements I_Window {
                 if(!lock) {
                     String sel_item = (String) methods.getSelectedItem();
                     int pos = nameLocationMap.get(sel_item);
-                    System.out.println("Action Performed");
+                    //System.out.println("Action Performed");
                     editor_.settingChanged(null, "tabbed_editor_goto_line", null, pos);
                 }
             });
         }else{
-            System.out.println("UNKNOWN ACTION" + a);
+            //System.out.println("UNKNOWN ACTION" + a);
         }
     }
     void toolbar_addFunctionList(String filepath){
@@ -72,7 +69,7 @@ public class plugin_functionsBrowser implements I_Window {
             while(matcher.find()){
                 String method = getUniqueName(matcher.group(2));
                 int loc = matcher.start(2);
-                System.out.println(loc + "   " + method);
+                //System.out.println(loc + "   " + method);
                 nameLocationMap.put(method,loc);
                 methods.addItem(method);
             }

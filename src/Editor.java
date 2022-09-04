@@ -1,6 +1,5 @@
 // ManojBhaskarPCM : AMod Studio v3 : APK Modding IDE.
 
-import com.eztech.util.JavaClassFinder;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import mbpcm.ui.I_Window;
 import mbpcm.ui.ManojUI;
@@ -34,7 +33,7 @@ class Editor {
     window_logcat logcat;
     WindowManager wmgr;
     List<I_Window> loadedWindows = new ArrayList<>();
-    plugin_functionsBrowser functionsBrowser;
+    plugin_smaliHelper functionsBrowser;
     plugin_projectHelper projectHelper;
     //boolean developmentMode = true;
     public static void main(String[] args) {
@@ -68,14 +67,14 @@ class Editor {
         apkUtils = new mod_apkUtils(this);
         adbUtils = new mod_adbUtils(this);
         packageUtils = new mod_packageUtils(this);
-        logwindow = new window_log();
+        //logwindow = new window_log();
         mainMenu = new mod_MainMenu(this);
         statusBarTasks = new Listener_StatusBarTasks(this);
         javaView = new window_JavaView(this);
         statusBarPanel = new Bar_Status();
         logcat = new window_logcat(ui);
         wmgr = new WindowManager(ui);
-        functionsBrowser = new plugin_functionsBrowser(this);
+        functionsBrowser = new plugin_smaliHelper(this);
         projectHelper = new plugin_projectHelper(this);
     }
 
@@ -109,7 +108,7 @@ class Editor {
         loadedWindows.add(fileTree);
         loadedWindows.add(logcat);
         loadedWindows.add(javaView);
-        loadedWindows.add(logwindow);
+        //loadedWindows.add(logwindow);
         loadedWindows.add(functionsBrowser);
         loadedWindows.add(apkUtils);
         loadedWindows.add(projectHelper);
@@ -121,7 +120,6 @@ class Editor {
         }
         wmgr.finishAdding();
         //========================================================
-
 
 
 

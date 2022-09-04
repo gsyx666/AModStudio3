@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 public class plugin_projectHelper implements I_Window {
     Editor editor_;
     String basepath;
+    JButton focus;
     Set<String> packageSet = new HashSet<>();
     java.util.List<String> list;
     boolean lock = false;
@@ -23,6 +24,7 @@ public class plugin_projectHelper implements I_Window {
         editor_ = editor;
         pkgs = new JComboBox<>();
         pkgs.setMaximumSize(new Dimension(200,30));
+        focus = new JButton("F");
     }
     @Override
     public JComponent getWindow() {
@@ -72,7 +74,7 @@ public class plugin_projectHelper implements I_Window {
                 }
             });
         }else{
-            System.out.println("UNKNOWN ACTION" + a);
+            //System.out.println("UNKNOWN ACTION" + a);
         }
     }
     public void listPackages(String basepath){

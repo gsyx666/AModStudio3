@@ -4,10 +4,13 @@ import mbpcm.ui.TabbedFileEditor;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class window_main implements I_Window {
     TabbedFileEditor tabbedFileEditor;
     JToggleButton toggleMain;
+    JButton focus;
     window_main(Editor editor){
         tabbedFileEditor = new TabbedFileEditor((action, data) -> {
             editor.settingChanged(null,action,(String)data,null);
@@ -17,6 +20,7 @@ public class window_main implements I_Window {
         toggleMain.setSelected(true);
         toggleMain.setEnabled(false);
         toggleMain.setVisible(false);
+
     }
     @Override
     public JComponent getWindow() {

@@ -6,10 +6,6 @@ import mbpcm.ui.SmoothIcon;
 import mbpcm.ui.TabbedFileEditor;
 
 import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.text.Position;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import java.awt.*;
@@ -18,12 +14,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.Serial;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
 
 public class window_fileTree implements I_Window {
     Editor editor;
@@ -58,22 +49,12 @@ public class window_fileTree implements I_Window {
                 }
             }
         });
-        fileTree.addTreeSelectionListener(new TreeSelectionListener() {
-            public void valueChanged(TreeSelectionEvent e) {
-                Object[] elements = fileTree.getSelectionPaths();
-                System.out.println(Arrays.toString(elements));
-            }
+        fileTree.addTreeSelectionListener(e -> {
+            Object[] elements = fileTree.getSelectionPaths();
+            //System.out.println(Arrays.toString(elements));
         });
         fileTreeToggle = ManojUI.getVerticalButton("Project",true);
         fileTreeToggle.setSelected(true);
-        JButton jButton = new JButton("test");
-        jButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-               gotoPath("H:\\splitApks\\Garuda [v4.0.7]-split\\base\\smali\\android\\support\\customtabs\\ICustomTabsCallback$Stub$Proxy.smali");
-            }
-        });
-        topbar.add(jButton);
         mainPanel.add(topbar,BorderLayout.NORTH);
         mainPanel.add(spFileTree,BorderLayout.CENTER);
 
@@ -108,6 +89,8 @@ public class window_fileTree implements I_Window {
         }else if(a.equals("project_loaded")){
            fileTree.setModel(new FileSystemModel(new File(b)));
            loadProjectAndHighlight(b,c);
+        }else if(a.equals("file_changed")){
+            gotoPath(b);
         }
     }
     void loadProjectAndHighlight(String b,Object c){
@@ -119,7 +102,7 @@ public class window_fileTree implements I_Window {
             mainClassPath = b + "\\smali_classes2\\" +  mainClass.replace(".","\\") + ".smali";
         }
         gotoPath(mainClassPath); // highlighted the tree.
-        System.out.println(mainClassPath);
+        //System.out.println(mainClassPath);
         editor.settingChanged(null,"file_opened",mainClassPath,null); //opened in editor.
 
     }
@@ -167,7 +150,16 @@ public class window_fileTree implements I_Window {
         File[] arr = new File[filePaths.size()];
         filePaths.toArray(arr);
         fileTree.clearSelection();
+        fileTree.scrollPathToVisible(new TreePath(arr));
         fileTree.addSelectionPath(new TreePath(arr));
+        TreePath pathh = fileTree.getSelectionPath();
+        if (pathh == null) return;
+        Rectangle bounds = fileTree.getPathBounds(pathh);
+        int oldHeight = bounds.height;
+        // set the height to the visible height to force the node to top
+        bounds.height = fileTree.getVisibleRect().height;
+        bounds.y = bounds.y - oldHeight*5;
+        fileTree.scrollRectToVisible(bounds);
 
     }
 
