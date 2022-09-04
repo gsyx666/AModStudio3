@@ -6,15 +6,24 @@ import mbpcm.ui.SmoothIcon;
 import mbpcm.ui.TabbedFileEditor;
 
 import javax.swing.*;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.text.Position;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.Serial;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
 
 public class window_fileTree implements I_Window {
     Editor editor;
@@ -22,6 +31,8 @@ public class window_fileTree implements I_Window {
     JTree fileTree;
     TabbedFileEditor tabbedFileEditor;
     ModernScrollPane spFileTree;
+    JPanel mainPanel = new JPanel(new BorderLayout());
+    JPanel topbar = new JPanel();
     static Icon smali = new SmoothIcon(utils.getImageFromRes("fileicons/smali.png"),16,16) ;
     static Icon yaml = new SmoothIcon(utils.getImageFromRes("fileicons/yml.png"),16,16) ;
     static Icon xml = new SmoothIcon(utils.getImageFromRes("fileicons/xml.png"),16,16) ;
@@ -47,14 +58,29 @@ public class window_fileTree implements I_Window {
                 }
             }
         });
-
+        fileTree.addTreeSelectionListener(new TreeSelectionListener() {
+            public void valueChanged(TreeSelectionEvent e) {
+                Object[] elements = fileTree.getSelectionPaths();
+                System.out.println(Arrays.toString(elements));
+            }
+        });
         fileTreeToggle = ManojUI.getVerticalButton("Project",true);
         fileTreeToggle.setSelected(true);
+        JButton jButton = new JButton("test");
+        jButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               gotoPath("H:\\splitApks\\Garuda [v4.0.7]-split\\base\\smali\\android\\support\\customtabs\\ICustomTabsCallback$Stub$Proxy.smali");
+            }
+        });
+        topbar.add(jButton);
+        mainPanel.add(topbar,BorderLayout.NORTH);
+        mainPanel.add(spFileTree,BorderLayout.CENTER);
 
     }
     @Override
     public JComponent getWindow() {
-        return spFileTree;
+        return mainPanel;
     }
 
     @Override
@@ -77,7 +103,25 @@ public class window_fileTree implements I_Window {
         if(a.equals("app_decompiled")){
             fileTree.setModel(new FileSystemModel(new File(b)));
             editor.ui.f.setTitle(editor.getVersion() + " : " + b);
+        }else if(a.equals("select_tree_path")){
+            gotoPath(b);
+        }else if(a.equals("project_loaded")){
+           fileTree.setModel(new FileSystemModel(new File(b)));
+           loadProjectAndHighlight(b,c);
         }
+    }
+    void loadProjectAndHighlight(String b,Object c){
+        String[] data = (String[]) c;
+        String packageName = data[0];
+        String mainClass = data[1];
+        String mainClassPath = b + "\\smali\\" + mainClass.replace(".","\\") + ".smali";
+        if(!new File(mainClassPath).exists()){
+            mainClassPath = b + "\\smali_classes2\\" +  mainClass.replace(".","\\") + ".smali";
+        }
+        gotoPath(mainClassPath); // highlighted the tree.
+        System.out.println(mainClassPath);
+        editor.settingChanged(null,"file_opened",mainClassPath,null); //opened in editor.
+
     }
     static class CustomIconRenderer extends DefaultTreeCellRenderer {
        // @Serial
@@ -103,6 +147,28 @@ public class window_fileTree implements I_Window {
             }
             return this;
         }
+    }
+
+    void gotoPath(String path){
+        String rootpath = fileTree.getModel().getRoot().toString();
+        java.util.List<File> filePaths = new ArrayList<>();
+        filePaths.add(new File(rootpath));
+        String newpath = path.replace(rootpath + "\\","");
+        String[] ar = newpath.split("\\\\");
+
+        String totalPath = rootpath;
+        for(String p:ar){
+            totalPath = totalPath + "\\" + p;
+            filePaths.add(new File(totalPath));
+            System.out.println(totalPath);
+        }
+
+        //File[] testpath = new File[]{(File)fileTree.getModel().getRoot(),new File("H:\\splitApks\\Garuda [v4.0.7]-split\\base\\smali"),new File("H:\\splitApks\\Garuda [v4.0.7]-split\\base\\smali\\android"),new File("H:\\splitApks\\Garuda [v4.0.7]-split\\base\\smali\\android\\support")};
+        File[] arr = new File[filePaths.size()];
+        filePaths.toArray(arr);
+        fileTree.clearSelection();
+        fileTree.addSelectionPath(new TreePath(arr));
+
     }
 
 }

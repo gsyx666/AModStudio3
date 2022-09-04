@@ -38,18 +38,6 @@ public class FileSystemModel implements TreeModel {
         }
         return 0;
     }
-    private void updateCache(File parent){
-        String key = parent.getAbsolutePath();
-        if(!cache.containsKey(key)){
-            msg("caching");
-            list = parent.listFiles();
-            Arrays.sort(list, Comparator.comparingLong(File::length));
-            //cachedDirpath = parent.getAbsolutePath();
-            //cache.put(key,list);
-        }else{
-            //list = cache.get(key);
-        }
-    }
     private void updateCache2(File parent){
         String key = parent.getAbsolutePath();
         if(!cache.containsKey(key)){

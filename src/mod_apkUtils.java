@@ -4,6 +4,7 @@ import com.android.apksig.ApkSigner;
 import com.android.apksig.ApkVerifier;
 import com.android.apksig.apk.ApkFormatException;
 import mbpcm.customViews.FileSystemModel;
+import mbpcm.ui.I_Window;
 import mbpcm.ui.SmoothIcon;
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,7 +22,7 @@ import java.util.prefs.Preferences;
 
 import static org.apache.commons.lang3.ArrayUtils.reverse;
 
-public class mod_apkUtils extends super_MenuInterface implements I_itct {
+public class mod_apkUtils extends super_MenuInterface implements I_itct, I_Window {
     Editor mainwin;
     String allTools ="";
     String notSetTools = "";
@@ -37,38 +38,7 @@ public class mod_apkUtils extends super_MenuInterface implements I_itct {
     mod_apkUtils(Editor _mainWin) {
         super(_mainWin);
         mainwin = _mainWin;
-        //cmdWindow = new CmdUtils(mainwin.taSmali,this);
-        autoSetJAVA();
-        refreshToolsPaths(true);
-        //---------------Create---------
-        StringBuilder menuNames = new StringBuilder();
-        for(String key:keys){
-            menuNames.append("set ").append(key).append(" path,");
-        }
-        menuNames.append("check all path");
-        loadRecentProjects();
-        addMenuItems("File","Decompile,OpenFolderAsProject");
-        addSubMenuItems("Settings","Apk Tools Path", menuNames.toString());
-        addMenuItems("Help","Apk Tools Path");
-        addMenuItems("Beta","test1");
-        addMenuItems("APK","ReCompile&Run,Locate ReCompiled,Check ZipAlignment,Check Signature,Zip Align,Sign Apk");
-        //--------------------------------
-        devices = new JComboBox<>();
-        devices.setMaximumSize(new Dimension(200,30));
-        JButton refreshDevices = new JButton();
-        refreshDevices.setIcon(new SmoothIcon(utils.getImageFromRes("icons8-synchronize-12.png")));
-        JButton run = new JButton();
-        run.setIcon(new SmoothIcon(utils.getImageFromRes("start.png")));
-        run.addActionListener(e -> RecompileAndRun());
-        refreshDevices.addActionListener(e -> getDevices());
 
-
-        mainwin.toolBar.add(Box.createHorizontalGlue());
-        mainwin.toolBar.add(devices);
-        //mainwin.toolBar.add(Box.createHorizontalStrut(2));
-        mainwin.toolBar.add(refreshDevices);
-        //mainwin.toolBar.add(Box.createHorizontalStrut(2));
-        mainwin.toolBar.add(run);
     }
     public void getDevices(){
         devices.removeAllItems();
@@ -84,12 +54,14 @@ public class mod_apkUtils extends super_MenuInterface implements I_itct {
     public void loadProject(String lastProject){
         if(lastProject==null){return;}
         mainWin.mainWindow.setTitle(mainwin.getVersion() + " : " + lastProject);
-        mainWin.fileTree.fileTree.setModel(new FileSystemModel(new File(lastProject)));
+        //mainWin.fileTree.fileTree.setModel(new FileSystemModel(new File(lastProject)));
         String pa = LIb_apkFunctions.parsePackageAndMainActivity(lastProject + "\\AndroidManifest.xml");
         if(pa==null){return;}
         String[] tmp = pa.split(";");
+        mainWin.vars.put("project",lastProject);
         mainWin.vars.put("packageName",tmp[0]);
         mainWin.vars.put("mainClass",tmp[1]);
+        mainWin.settingChanged(null,"project_loaded",lastProject,tmp);
     }
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
@@ -398,4 +370,62 @@ public class mod_apkUtils extends super_MenuInterface implements I_itct {
 
     @Override
     public void onProgress(String what, Object detail, String data) {}
+
+    @Override
+    public JComponent getWindow() {
+        return null;
+    }
+
+    @Override
+    public JToggleButton getButton() {
+        return null;
+    }
+
+    @Override
+    public String getWindowName() {
+        return null;
+    }
+
+    @Override
+    public int getPrefPosition() {
+        return 0;
+    }
+
+    @Override
+    public void onSettingChanged(String a, String b, Object c) {
+        if(a.equals("init")){
+            //cmdWindow = new CmdUtils(mainwin.taSmali,this);
+            autoSetJAVA();
+            refreshToolsPaths(true);
+            //---------------Create---------
+            StringBuilder menuNames = new StringBuilder();
+            for(String key:keys){
+                menuNames.append("set ").append(key).append(" path,");
+            }
+            menuNames.append("check all path");
+            loadRecentProjects();
+            addMenuItems("File","Decompile,OpenFolderAsProject");
+            addSubMenuItems("Settings","Apk Tools Path", menuNames.toString());
+            addMenuItems("Help","Apk Tools Path");
+            addMenuItems("Beta","test1");
+            addMenuItems("APK","ReCompile&Run,Locate ReCompiled,Check ZipAlignment,Check Signature,Zip Align,Sign Apk");
+            //--------------------------------
+            devices = new JComboBox<>();
+            devices.setMaximumSize(new Dimension(200,30));
+            JButton refreshDevices = new JButton();
+            refreshDevices.setIcon(new SmoothIcon(utils.getImageFromRes("icons8-synchronize-12.png")));
+            JButton run = new JButton();
+            run.setIcon(new SmoothIcon(utils.getImageFromRes("start.png")));
+            run.addActionListener(e -> RecompileAndRun());
+            refreshDevices.addActionListener(e -> getDevices());
+
+
+            mainwin.toolBar.add(Box.createHorizontalGlue());
+            mainwin.toolBar.add(devices);
+            //mainwin.toolBar.add(Box.createHorizontalStrut(2));
+            mainwin.toolBar.add(refreshDevices);
+            //mainwin.toolBar.add(Box.createHorizontalStrut(2));
+            mainwin.toolBar.add(run);
+        }
+    }
 }

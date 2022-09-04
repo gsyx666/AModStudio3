@@ -35,6 +35,7 @@ class Editor {
     WindowManager wmgr;
     List<I_Window> loadedWindows = new ArrayList<>();
     plugin_functionsBrowser functionsBrowser;
+    plugin_projectHelper projectHelper;
     //boolean developmentMode = true;
     public static void main(String[] args) {
 
@@ -75,6 +76,7 @@ class Editor {
         logcat = new window_logcat(ui);
         wmgr = new WindowManager(ui);
         functionsBrowser = new plugin_functionsBrowser(this);
+        projectHelper = new plugin_projectHelper(this);
     }
 
     Editor() {
@@ -109,6 +111,8 @@ class Editor {
         loadedWindows.add(javaView);
         loadedWindows.add(logwindow);
         loadedWindows.add(functionsBrowser);
+        loadedWindows.add(apkUtils);
+        loadedWindows.add(projectHelper);
 
         for (I_Window cls:loadedWindows) {
             if(cls.getWindowName() != null) { //just plugins for other works.
@@ -119,11 +123,16 @@ class Editor {
         //========================================================
 
 
-        ui.f.setVisible(true);
 
-        mainEditor.tabbedFileEditor.addFile("Welcome","This is AMod Studio v1.5\nAuthor: ManojBhakarPCM");
+
+        mainEditor.tabbedFileEditor.addFile("Welcome","This is AMod Studio v3\nAuthor: ManojBhakarPCM");
         //SwingUtilities.invokeLater(() -> apkUtils.getDevices());
         settingChanged(null,"init",null,null);
+        ui.f.setVisible(true);
+        settingChanged(null,"init2",null,null);
+        settingChanged(null,"init3",null,null);
+
+
 
     }
     protected JComponent makeTextPanel(String text) {
