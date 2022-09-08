@@ -49,6 +49,12 @@ public class window_main implements I_Window {
             String filepath = tabbedFileEditor.getSelectedFilePath();
             RSyntaxTextArea rSyntaxTextArea = tabbedFileEditor.getTextAreaByFilePath(filepath);
             rSyntaxTextArea.setCaretPosition((int)c);
+        }else if(a.equals("open_file_and_goto_line")){
+            int line = (int)c;
+            tabbedFileEditor.addFile(b);
+            String filepath = tabbedFileEditor.getSelectedFilePath();
+            RSyntaxTextArea rSyntaxTextArea = tabbedFileEditor.getTextAreaByFilePath(filepath);
+            rSyntaxTextArea.setCaretPosition((int)c);
         }
     }
 }

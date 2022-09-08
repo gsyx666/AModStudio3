@@ -2,285 +2,166 @@ import com.formdev.flatlaf.FlatDarkLaf;
 import jadx.core.utils.GsonUtils;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.json.*;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Experiment {
+import static java.awt.Component.LEFT_ALIGNMENT;
+import static javax.swing.Box.createHorizontalStrut;
+import static javax.swing.Box.createVerticalStrut;
+import static mbpcm.ui.uiUtils.getJToggleButton;
 
+public class Experiment {
+    JPanel resultPanel = new JPanel();
+    JFrame f;
     public static void main(String[] args) {
         FlatDarkLaf.setup();
         new Experiment();
-
     }
     Experiment(){
-        //String file = "H:\\splitApks\\MoviesFree [1.2]-split\\base\\smali_classes4\\com\\google\\android\\gms\\measurement\\internal\\zzkn.smali";
-        //String file = "H:\\splitApks\\Send Files To TV [1.2.2]-split\\base\\smali\\com\\google\\android\\gms\\internal\\measurement\\zzjk.smali";
-        String file = "G:\\portableApps\\Hacking & Programming\\APK Easy Tool portable\\1-Decompiled APKs\\base\\smali\\androidx\\exifinterface\\media\\ExifInterface.smali";
-        file = "C:\\Users\\MbPCM\\ApkProjects\\pikashow\\smali\\out\\s74.smali";
-        new smaliParser(file);
-    }
-    static class smaliParser{
-        String mFilePath = "";
-        List<String> lines;
-        Cls cls = new Cls();
-        smaliParser(String filepath){
-            cls.filepath = filepath;
-            System.out.println("Started...");
-            mFilePath = filepath;
-            try {
-                lines = Files.readAllLines(Paths.get(mFilePath));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            if(lines.size()==0){return;}
-            String expect = null;
-            int startline = 0;
-            String type = "";
-            int index = -1;
-            boolean optional = false;
-            String st = ".field,.method,.super,.source,.interface,.implements,.class";
-            for(String line:lines){
-                index ++; //starts from 1
-                line = line.trim();
-                if(line.equals("")){continue;}
-                String[] words = line.split("\\s");
-                if(expect!=null){
-                    if(line.startsWith(expect)){
-                        printBlock(type,startline,index);
-                        expect = null;
-                        type = null;
-                        startline = 0;
-                        continue;
-                    }else if(optional && st.contains(words[0] + ",")){
-                        printBlock(type,startline,startline);
-                        expect = null;
-                        type = null;
-                        startline = 0;
-                    }
-                }
-                switch (words[0]){
-                    case ".method" -> {
-                        expect = ".end method";
-                        type="method";
-                        optional = false;
-                        startline=index;
-                    }
-                    case ".field" -> {
-                        expect = ".end field";
-                        type="field";
-                        optional = true;
-                        startline=index;
-                    }
-                    case ".annotation" -> {
-                        if(expect==null) { //because it is also internal directive.
-                            expect = ".end annotation";
-                            type = "annotation";
-                            optional = false;
-                            startline = index;
-                        }
-                    }
-                    case ".class" -> {printBlock("class",index,index);}
-                    case ".super" -> {printBlock("super",index,index);}
-                    case ".source" -> {printBlock("source",index,index);}
-                    case ".implements" -> {printBlock("implements",index,index);}
-                    case ".interface" -> {printBlock("interface",index,index);}
-                    default -> {
-                        if(expect==null) {
-                            if(!line.startsWith("#")) {
-                                System.out.println("UnExpected Word " + words[0]);
-                            }
-                        }
-                    }
-                }
-            }
 
+        f = new JFrame("AMod Studio3 Search");
+        f.getContentPane().setLayout(new BoxLayout(f.getContentPane(),BoxLayout.Y_AXIS));
+        Rectangle gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        //Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        double width = gd.getWidth()*1/2;
+        double height = gd.getHeight()*1/2;
+        f.setSize((int)width, (int)height);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JPanel searchBox = getSearchPannel();
+        searchBox.setMaximumSize(new Dimension(Integer.MAX_VALUE,25));
+        f.add(searchBox,BorderLayout.NORTH);
+        resultPanel.setLayout(new BoxLayout(resultPanel,BoxLayout.Y_AXIS));
+        f.add(new JScrollPane(resultPanel));
+        f.setLocationRelativeTo(null); //center screen
+        f.setVisible(true);
+        f.setState(JFrame.MAXIMIZED_BOTH); //start Maximized
+        for(int i=0;i<10;i++){
+            //add_result("New But LONG LONG TEXT...");
         }
-        private void printBlock(String name,int start,int end){
-            switch (name){
-                case "method" -> {
-                   List<String> ret = parseByRegex(start,".method\\s+(.*)\\s+(.*?)\\((.*?)\\)(L(.*?);|[A-Z]{1})",5);
-                   if(ret!=null){
-                       String body = "";
-                       for(int i= start+1;i<end;i++){
-                           if(!lines.get(i).equals("")) {
-                               body += lines.get(i);
-                           }
-                       }
-                       Methods methods = new Methods(ret.get(1),ret.get(0),ret.get(2),ret.get(3),body);
-                       cls.methods.add(methods);
-                       //System.out.println("Method:" + ret.get(1));
-                   }else{
-                       System.out.println("[Line " + start + "] Invalid Method Declaration:" + lines.get(start));
-                   }
-                }
-                case "field" -> { //TODO: how a field appear in smali if it is given an initial value?
-                    List<String> ret = parseByRegex(start,".field\\s+(.*)\\s+(.*):(L(.*?);|[A-Z]{1})",4);
-                    if(ret!=null){
-                        String body = "";
-                        if(start!=end) {
-                            for (int i = start + 1; i < end; i++) {
-                                if (!lines.get(i).equals("")) {
-                                    body += lines.get(i);
-                                }
-                            }
-                        }
-                        Fields fields = new Fields(ret.get(1),ret.get(0),ret.get(2),body);
-                        cls.fields.add(fields);
-                        //System.out.println("Field:" + ret.get(1));
-                    }else{
-                        System.out.println("[Line " + start + "] Invalid Field Declaration:" + lines.get(start));
-                    }
-                }
-                case "source" -> {
-                    List<String> ret = parseByRegex(start,".source\\s+\\\"((.*?))\\\"",2);
-                    if(ret!=null){
-                        cls.source = ret.get(0);
-                    }else{
-                        System.out.println("[Line " + start + "] Invalid Source Declaration" + lines.get(start));
-                    }
-                }
-                case "class" -> {
-                    List<String> ret = parseByRegex(start,".class(.*)\\s+L((.*));",3);
-                    if(ret!=null){
-                        cls.access_mod = ret.get(0);
-                        cls.clsName = ret.get(1);
-                        System.out.print(ret.get(0).trim() + " class " + ret.get(1) + " ");
-                    }else{
-                        System.out.println("[Line " + start + "] Invalid Class Declaration:" + lines.get(start));
-                    }
-                }
-                case "super" -> {
-                    List<String> ret = parseByRegex(start,".super\\s+L((.*));",2);
-                    if(ret!=null){
-                        cls.extend = ret.get(0);
-                        System.out.print(" extends " + ret.get(0).replace('/','.'));
-                    }else{
-                        System.out.println("[Line " + start + "] Invalid extends Declaration:" + lines.get(start));
-                    }
-                }
-                case "implements" -> {
-                    List<String> ret = parseByRegex(start,".implements\\s+L((.*?));",2);
-                    if(ret!=null){
-                        cls.implement.add(ret.get(0));
-                    }else{
-                        System.out.println("[Line " + start + "] Invalid Interface Declaration:" + lines.get(start));
-                    }
-                }
+    }
+    private void add_result(String s){
+        JPanel jPanel = new JPanel(new BorderLayout());
+        JLabel jLabel = new JLabel();
+        jLabel.setText(s);
+        jPanel.add(jLabel);
+        jPanel.setBackground(Color.BLUE);
+        resultPanel.add(jPanel,LEFT_ALIGNMENT);
+        resultPanel.add(createVerticalStrut(10));
+        f.setVisible(true);
+    }
+    private JPanel getSearchPannel(){
+        JToggleButton longs;
+        JToggleButton Apis;
+        JToggleButton strings;
+        JToggleButton methods;
+        JToggleButton fields;
+        JToggleButton interfaces;
+        JToggleButton src;
+        JToggleButton superclass;
+        JToggleButton className;
+        Color themeColor = new Color(40, 40, 80);
+        JPanel jPanel = new JPanel(new BorderLayout());
+        JPanel searchBox = new JPanel();
+        JComboBox<String> directOptions = new JComboBox<>();
+        directOptions.addItem("All");
+        directOptions.addItem("PackageUse");
+        directOptions.addItem("Strings");
+        directOptions.addItem("MethodName");
+
+        jPanel.setLayout(new BoxLayout(jPanel,BoxLayout.X_AXIS));
+        searchBox.setLayout(new BoxLayout(searchBox,BoxLayout.X_AXIS));
+        searchBox.setBackground(themeColor);
+
+        Color backColor = searchBox.getBackground();
+
+        fields = getJToggleButton("f");
+        fields.setBackground(backColor);
+
+        methods = getJToggleButton("( )");
+        methods.setBackground(backColor);
+
+        strings = getJToggleButton("\"\"");
+        strings.setBackground(backColor);
+
+        longs = getJToggleButton("0x");
+        longs.setBackground(backColor);
+
+        Apis = getJToggleButton("API");
+        Apis.setBackground(backColor);
+
+
+        className = getJToggleButton("class");
+        Apis.setBackground(backColor);
+
+        superclass = getJToggleButton("super");
+        Apis.setBackground(backColor);
+
+        interfaces = getJToggleButton("I");
+        Apis.setBackground(backColor);
+
+        src = getJToggleButton("src");
+        Apis.setBackground(backColor);
+
+        JTextField searchTextBox = new JTextField();
+        searchTextBox.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {warn();}
+            public void removeUpdate(DocumentEvent e) {warn();}
+            public void insertUpdate(DocumentEvent e) {warn();}
+            public void warn() {
+                add_result("hellow there");
             }
-        }
-        private List<String> parseByRegex(int lineNo, String regex, int expectedGroups){
-            List<String> out = new ArrayList<>();
-            String line = lines.get(lineNo);
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(line);
-            if(matcher.matches() && matcher.groupCount()==expectedGroups) {
-                for (int i = 1; i < expectedGroups; i++) {
-                    out.add(matcher.group(i));
-                }
-                return out;
-            }else{
-                System.out.println("group Count:" + matcher.groupCount() + "  matched : " + matcher.matches());
-                for(int i=0;i<matcher.groupCount();i++){
-                    System.out.println("Group" + i + " : " + matcher.group(i));
-                }
-                return null;
+        });
+        searchTextBox.addActionListener(e -> {
+
+        });
+
+        searchTextBox.setName("txtSearch");
+        searchTextBox.setFocusable(true);
+        searchTextBox.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
+        searchTextBox.setBackground(backColor);
+
+        searchBox.add(searchTextBox);
+        searchBox.add(fields);
+        searchBox.add(methods);
+        searchBox.add(strings);
+        searchBox.add(longs);
+        searchBox.add(Apis);
+
+        searchBox.add(createHorizontalStrut(10));
+
+        searchBox.add(className);
+        searchBox.add(superclass);
+        searchBox.add(interfaces);
+        searchBox.add(src);
+        searchBox.add(createHorizontalStrut(10));
+        //searchBox.add(directOptions);
+        JButton jButton = new JButton("Clear");
+        jButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resultPanel.removeAll();
+                resultPanel.repaint();
             }
-        }
+        });
+        searchBox.add(jButton);
+        jPanel.add(searchBox,BorderLayout.WEST);
+        return jPanel;
     }
-    static class Methods {
-        public String methodName;
-        public String access;
-        public String inputs;
-        public String output;
-        public String body;
-        Methods(String methodName_, String access_spec, String inputs_, String output_, String body_){
-            methodName = methodName_;
-            access = access_spec;
-            inputs = inputs_;
-            output = output_;
-            body = body_;
-        }
-    }
-    static class Fields {
-        public String Name;
-        public String access;
-        public String value;
-        public String body;
-        Fields(String Name_, String access_spec, String value_, String body_){
-            Name = Name_;
-            access = access_spec;
-            value = value_;
-            body = body_;
-        }
-    }
-    static class Cls{
-        public String filepath;
-        public String extend;
-        public String clsName;
-        public String source;
-        public String comments;
-        public String access_mod;
-        public boolean isInterface;
-        public List<String> implement = new ArrayList<>();
-        public List<Fields> fields = new ArrayList<>();
-        public List<Methods> methods = new ArrayList<>();
-    }
-    /*
-     public static int getAcc(String name) {
-        if (name.equals("public")) {
-            return ACC_PUBLIC;
-        } else if (name.equals("private")) {
-            return ACC_PRIVATE;
-        } else if (name.equals("protected")) {
-            return ACC_PROTECTED;
-        } else if (name.equals("static")) {
-            return ACC_STATIC;
-        } else if (name.equals("final")) {
-            return ACC_FINAL;
-        } else if (name.equals("synchronized")) {
-            return ACC_SYNCHRONIZED;
-        } else if (name.equals("volatile")) {
-            return ACC_VOLATILE;
-        } else if (name.equals("bridge")) {
-            return ACC_BRIDGE;
-        } else if (name.equals("varargs")) {
-            return ACC_VARARGS;
-        } else if (name.equals("transient")) {
-            return ACC_TRANSIENT;
-        } else if (name.equals("native")) {
-            return ACC_NATIVE;
-        } else if (name.equals("interface")) {
-            return ACC_INTERFACE;
-        } else if (name.equals("abstract")) {
-            return ACC_ABSTRACT;
-        } else if (name.equals("strict")) {
-            return ACC_STRICT;
-        } else if (name.equals("synthetic")) {
-            return ACC_SYNTHETIC;
-        } else if (name.equals("annotation")) {
-            return ACC_ANNOTATION;
-        } else if (name.equals("enum")) {
-            return ACC_ENUM;
-        } else if (name.equals("constructor")) {
-            return ACC_CONSTRUCTOR;
-        } else if (name.equals("declared-synchronized")) {
-            return ACC_DECLARED_SYNCHRONIZED;
-        }
-        return 0;
-        case 'V':
-                case 'Z':
-                case 'C':
-                case 'B':
-                case 'S':
-                case 'I':
-                case 'F':
-                case 'J':
-                case 'D':
-    }
-     */
+
+
 }

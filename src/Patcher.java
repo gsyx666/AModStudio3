@@ -1,3 +1,7 @@
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
 public class Patcher {
     /*
     * GOAL: easy patch functions.
@@ -28,4 +32,18 @@ public class Patcher {
     * deleteField()
     *
     * */
+    public static void main(String[] args){
+        String[] br = new String[]{"abc","cde"};
+        JsonObjectBuilder b = Json.createObjectBuilder();
+        b.add("name","manoj");
+        b.add("age",32);
+        b.add("type","teacher");
+        JsonObjectBuilder a = Json.createObjectBuilder();
+        a.add("name","manoj");
+        a.add("age",32);
+        a.add("type","teacher");
+        a.add("",b);
+        JsonObject out = a.build();
+        System.out.println(out);
+    }
 }

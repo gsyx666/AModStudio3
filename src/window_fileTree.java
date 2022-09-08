@@ -14,7 +14,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class window_fileTree implements I_Window {
     Editor editor;
@@ -32,6 +34,18 @@ public class window_fileTree implements I_Window {
         editor = editor1;
         tabbedFileEditor = _tabbedFileEditor;
         fileTree = new JTree();
+        JPopupMenu contextMenu = new JPopupMenu();
+        JMenuItem menuItemSearch = new JMenuItem("Search Here");
+        JMenuItem menuItemExplore = new JMenuItem("Open in Explore");
+        menuItemSearch.addActionListener(e -> {
+            editor.settingChanged(this,"search_win_show",getLastSelectedPath(),null);
+            System.out.println(getLastSelectedPath());
+        });
+
+        contextMenu.add(menuItemSearch);
+        contextMenu.add(menuItemExplore);
+
+        fileTree.setComponentPopupMenu(contextMenu);
         fileTree.setBackground(new Color(60,63,65));
         spFileTree = new ModernScrollPane(fileTree);
         spFileTree.setBorder(BorderFactory.createEmptyBorder());
@@ -50,14 +64,21 @@ public class window_fileTree implements I_Window {
             }
         });
         fileTree.addTreeSelectionListener(e -> {
-            Object[] elements = fileTree.getSelectionPaths();
-            //System.out.println(Arrays.toString(elements));
+
         });
         fileTreeToggle = ManojUI.getVerticalButton("Project",true);
         fileTreeToggle.setSelected(true);
         mainPanel.add(topbar,BorderLayout.NORTH);
         mainPanel.add(spFileTree,BorderLayout.CENTER);
 
+    }
+    String getLastSelectedPath(){
+        TreePath selectedPath = fileTree.getSelectionPath();
+        if (selectedPath != null) {
+            File selectedNode = ((File)selectedPath.getLastPathComponent());
+            return selectedNode.getAbsolutePath();
+        }
+        return "";
     }
     @Override
     public JComponent getWindow() {

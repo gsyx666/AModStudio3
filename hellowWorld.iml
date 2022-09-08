@@ -9,7 +9,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="apksigner" level="project" />
-    <orderEntry type="library" name="darklaf-core-3.0.1-20220621.020210-74" level="project" />
     <orderEntry type="library" name="github.weisj.darklaf.core" level="project" />
     <orderEntry type="library" name="jsyntaxpane-0.9.5-b29" level="project" />
     <orderEntry type="library" name="jadx-core-1.4.2" level="project" />
@@ -36,5 +35,6 @@
     <orderEntry type="library" name="formdev.flatlaf" level="project" />
     <orderEntry type="library" name="dx" level="project" />
     <orderEntry type="library" name="dx (2)" level="project" />
+    <orderEntry type="library" name="google.code.gson" level="project" />
   </component>
 </module>

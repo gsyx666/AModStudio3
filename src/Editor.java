@@ -35,6 +35,7 @@ class Editor {
     List<I_Window> loadedWindows = new ArrayList<>();
     plugin_smaliHelper functionsBrowser;
     plugin_projectHelper projectHelper;
+    IndexedSearchProvider searchProvider;
     //boolean developmentMode = true;
     public static void main(String[] args) {
 
@@ -76,6 +77,7 @@ class Editor {
         wmgr = new WindowManager(ui);
         functionsBrowser = new plugin_smaliHelper(this);
         projectHelper = new plugin_projectHelper(this);
+        searchProvider = new IndexedSearchProvider(this);
     }
 
     Editor() {
@@ -112,6 +114,7 @@ class Editor {
         loadedWindows.add(functionsBrowser);
         loadedWindows.add(apkUtils);
         loadedWindows.add(projectHelper);
+        loadedWindows.add(searchProvider);
 
         for (I_Window cls:loadedWindows) {
             if(cls.getWindowName() != null) { //just plugins for other works.
