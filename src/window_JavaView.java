@@ -47,7 +47,7 @@ public class window_JavaView implements I_Window {
         if(a.equals("file_saved") || a.equals("file_changed")){
             if(b.endsWith(".smali")){
                 new toJava(b).start();
-                System.out.println("Converted To Java");
+                //System.out.println("Converted To Java");
             }else{
                 taJava.setText("");
             }

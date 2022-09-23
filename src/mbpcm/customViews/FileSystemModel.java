@@ -10,8 +10,8 @@ import java.util.*;
 
 public class FileSystemModel implements TreeModel {
     private final File root;
-    private String cachedDirpath = "";
-    private File[] list = {};
+    private final String cachedDirpath = "";
+    private final File[] list = {};
     private String[] listS = {};
     HashMap<String,String[]> cache = new HashMap<>();
     private final Vector<TreeModelListener> listeners = new Vector<>();
@@ -25,7 +25,12 @@ public class FileSystemModel implements TreeModel {
         //msg("getChild");
         File directory = (File) parent;
         updateCache2(directory);
-        return new TreeFile(directory, listS[index]);
+        if(listS!=null) {
+            return new TreeFile(directory, listS[index]);
+        }else{
+            updateCache2((File)parent);
+            return new TreeFile(directory, listS[index]);
+        }
     }
 
     public int getChildCount(Object parent) {

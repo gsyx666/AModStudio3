@@ -1,8 +1,4 @@
-import mbpcm.customViews.FileSystemModel;
-
-import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 
 public class Listener_StatusBarTasks implements I_itct {
     Editor mainWin;
@@ -52,10 +48,10 @@ public class Listener_StatusBarTasks implements I_itct {
             case "task_finish" ->{
                 if ("DECOMPILER".equals(data)) {
                     String decompiledFolder = (String) detail;
-                    mainWin.settingChanged(null,"app_decompiled",decompiledFolder,null);
+                    mainWin.settingChanged("app_decompiled",decompiledFolder,null);
                     //mainWin.fileTree.fileTree.setModel(new FileSystemModel(new File(decompiledFolder)));
                     //mainWin.mainWindow.setTitle(mainWin.getVersion() + " : " + decompiledFolder);
-                    String info = LIb_apkFunctions.parsePackageAndMainActivity(decompiledFolder + "\\AndroidManifest.xml");
+                    String info = lib_apk_xml.parsePackageAndMainActivity(decompiledFolder + "\\AndroidManifest.xml");
                     String[] inffo = info .split(";");
                     mainWin.vars.put("packageName",inffo[0]);
                     mainWin.vars.put("mainClass",inffo[1]);
@@ -63,7 +59,7 @@ public class Listener_StatusBarTasks implements I_itct {
             }
             case "setting" ->{
                 String pkg = (String) detail;
-                mainWin.settingChanged(null,"app_launched",pkg,null);
+                mainWin.settingChanged("app_launched",pkg,null);
             }
         }
 

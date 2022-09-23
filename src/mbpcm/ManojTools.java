@@ -53,6 +53,10 @@ public class ManojTools {
     public static String DexToJava(String inputDex){
         JadxArgs args = new JadxArgs();
         args.setInputFile(new File(inputDex));
+        //args.setDebugInfo(false);
+        //args.setDeobfuscationMaxLength(2);
+        //args.setDeobfuscationMinLength(2);
+        //args.setDeobfuscationOn(true);
        // args.close();
 
         try(JadxDecompiler jadx = new JadxDecompiler(args)) {

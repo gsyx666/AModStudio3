@@ -2,12 +2,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.util.Objects;
 
-public class LIb_apkFunctions {
+public class lib_apk_xml {
     static String getAttribute(Node node,String attrib){
         try {
             return node.getAttributes().getNamedItem(attrib).getNodeValue();

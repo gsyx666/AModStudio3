@@ -86,7 +86,7 @@ public class window_logcat extends Thread implements I_Window {
                     APID = pmatcher.group(1);
                     APKG = pmatcher.group(2);
                     procs.put(APID, APKG);
-                    System.out.println(APID + " : " + APKG);
+                    //System.out.println(APID + " : " + APKG);
                     jComboBoxApp.addItem(APKG);
                     isActivity = true;
                 }
@@ -94,7 +94,7 @@ public class window_logcat extends Thread implements I_Window {
                 Matcher kmatcher = pProcKill.matcher(data);
                 if (kmatcher.find()) {
                     APID = kmatcher.group(1);
-                    System.out.println("killed: " + APID + "    pkg: " + procs.get(APID));
+                    //System.out.println("killed: " + APID + "    pkg: " + procs.get(APID));
                     procs.remove(APID);
                     if(FilterMode==FILTER_WATCH && APID.equals(watchPID)){
                         removeWatch();

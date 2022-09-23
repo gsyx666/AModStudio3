@@ -1,7 +1,9 @@
 import com.formdev.flatlaf.FlatDarculaLaf;
+import mbpcm.smaliIndexer.Indexer;
 import mbpcm.ui.I_Window;
 
-import javax.json.*;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -10,19 +12,26 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 
 import static javax.swing.Box.createHorizontalStrut;
 import static javax.swing.Box.createVerticalStrut;
 import static mbpcm.ui.uiUtils.getJToggleButton;
 
 public class IndexedSearchProvider implements I_Window {
-    //TODO: find good Location for indexJSON data.
-    //TODO: createIndex on start if not exists
     //TODO: on file_save event - update indexData. only if file structure is changed.
-
+/* Process for Refectoring.
+* select text and show Window.
+* check1 : check if new Name already been used in current class.
+* check2 : make sure database recognized each and every method and field.
+* convert to CLS;->field:  or CLS;->method(
+* find in API uses of all classes.
+* list files, Locations in files.. and show as affected occurances.
+* replace.. in files
+* replace.. in database variable.
+* rewrite database to file.
+* propogate change to method list
+*
+* */
     SearchOptions searchOptions;
     String folder = "";
     String whatt = "";
@@ -39,6 +48,7 @@ public class IndexedSearchProvider implements I_Window {
     JPanel results = new JPanel();
     JFrame f;
     Editor editor_;
+    String dbPath;
     public static void main(String[] args){
         FlatDarculaLaf.setup();
         //new IndexedSearchProvider();
@@ -51,17 +61,7 @@ public class IndexedSearchProvider implements I_Window {
         //System.out.println("DONE");
         //f.setVisible(true);
     }
-    void loadJSONDatabase(String database){
-        InputStream fis = null;
-        try {
-            fis = new FileInputStream(database);
-            JsonReader reader = Json.createReader(fis);
-            db = reader.readArray();
-            reader.close();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
     SearchOptions createFromUI(){
         SearchOptions  searchOptions = new SearchOptions();
         searchOptions.folder = folder;
@@ -111,7 +111,7 @@ public class IndexedSearchProvider implements I_Window {
         jPanel.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                editor_.settingChanged(null,"file_opened",jl_filepath.getText(),null);
+                editor_.settingChanged("file_opened",jl_filepath.getText(),null);
             }
             @Override
             public void mousePressed(MouseEvent e) {}
@@ -225,10 +225,10 @@ public class IndexedSearchProvider implements I_Window {
     public void search(String what,SearchOptions searchOptions,int limit){
         results.removeAll();
         results.repaint();
-
-        if(db==null){
-            loadJSONDatabase("H:\\smaliDatabase.txt");
-        }
+        dbPath = editor_.vars.get("project") + "\\searchIndex.txt";
+        Indexer indexer = Indexer.getInstance();
+        db = indexer.db;
+        dbPath = indexer.dbPath;
         int size = db.size();
         int count = 0;
 

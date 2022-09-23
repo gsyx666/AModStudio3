@@ -36,4 +36,6 @@ from the time i started this project [15-16 JUNE 2022] , i didnt find any softwa
 - `[Fixed]` : Nox Running But Not Showing in Device List.. Fixed using "adb connect"
 - `[BUG]` : Split Apk crashes when run.
 - `PROBLEM` : Font on tabbed File Viewer Not Effective . WHY?
+- `COMPILE ERROR` : resource is not private : `SOLUTION` : replace @android/ with @*android/ for the resource 
+- `COMPILE ERROR` : No resource identifier found for attribute ‘style’ in package ‘android’ : `SOLUTION` : remove android: from xml attribute name
 

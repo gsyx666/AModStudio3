@@ -43,29 +43,29 @@ public class Thread_compileAndInstall extends Thread{
         itctl.onProgress("task",-1,"Compiling......");
 
 
-        boolean ret = mod_apkUtils.recompileApk(_decompiledFolderPath,RecompiledApkPath,false,false);
+        boolean ret = lib_apk_compile.recompileApk(_decompiledFolderPath,RecompiledApkPath,false,false);
         if(!ret){showError("ReCompiling.....failed!");return;}
 
         itctl.onProgress("task",-1,"Zip Aligning......");
 
-        ret = mod_apkUtils.zipAlign(RecompiledApkPath,ZipAlignedApkPath,_zipAlignToolPath,false);
+        ret = lib_apk_compile.zipAlign(RecompiledApkPath,ZipAlignedApkPath,_zipAlignToolPath,false);
         if(!ret){showError("ZipAligning.....failed!");return;}
 
 
         itctl.onProgress("task",-1,"Signing......");
 
-        ret = mod_apkUtils.signApk(ZipAlignedApkPath,SignedApkPath,_pemPath,_pk8Path,true,false);
+        ret = lib_apk_compile.signApk(ZipAlignedApkPath,SignedApkPath,_pemPath,_pk8Path,true,false);
         if(!ret){showError("Signing With Default Signatures...........failed!");return;}
 
 
         itctl.onProgress("task",-1,"Verifying Alignment......");
 
-        ret = mod_apkUtils.zipAlgnCheck(SignedApkPath,_zipAlignToolPath,false);
+        ret = lib_apk_compile.zipAlgnCheck(SignedApkPath,_zipAlignToolPath,false);
         if(!ret){showError("ZipAlignment Check ...........Problem ! Not Aligned !");return;}
 
         itctl.onProgress("task",-1,"Verifying Signature ......");
 
-        ret = mod_apkUtils.checkApkSignatures(SignedApkPath,true,false);
+        ret = lib_apk_compile.checkApkSignatures(SignedApkPath,true,false);
         if(!ret){showError("Signature Check ...........Problem ! Invalid Signature !");return;}
 
         showTakenTime("Compiling");

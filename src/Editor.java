@@ -1,6 +1,7 @@
 // ManojBhaskarPCM : AMod Studio v3 : APK Modding IDE.
 
 import com.formdev.flatlaf.FlatDarculaLaf;
+import mbpcm.smaliIndexer.Indexer;
 import mbpcm.ui.I_Window;
 import mbpcm.ui.ManojUI;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
@@ -14,8 +15,11 @@ import java.util.HashMap;
 
 class Editor {
     static Editor thisClass;
+    mod_toolSet toolSet;
+    project_loader project_loader;
+    mod_devices mod_devices;
+    mod_compiler compiler;
     mod_defaultMenus defaultMenus;
-    mod_apkUtils apkUtils;
     mod_adbUtils adbUtils;
     mod_packageUtils packageUtils;
     mod_MainMenu mainMenu;
@@ -37,6 +41,8 @@ class Editor {
     plugin_projectHelper projectHelper;
     IndexedSearchProvider searchProvider;
     //boolean developmentMode = true;
+    Renamer renamer;
+    Indexer indexer;
     public static void main(String[] args) {
 
         // FlatDarkLaf.setup();
@@ -63,9 +69,12 @@ class Editor {
     }
 
     void initPlugins() {
+        toolSet = new mod_toolSet(this);
+        project_loader = new project_loader(this);
+        mod_devices = new mod_devices(this);
+        compiler = new mod_compiler(this);
         fileTree = new window_fileTree(this,mainEditor.tabbedFileEditor);
-        defaultMenus = new mod_defaultMenus(this);
-        apkUtils = new mod_apkUtils(this);
+        //defaultMenus = new mod_defaultMenus(this);
         adbUtils = new mod_adbUtils(this);
         packageUtils = new mod_packageUtils(this);
         //logwindow = new window_log();
@@ -78,6 +87,7 @@ class Editor {
         functionsBrowser = new plugin_smaliHelper(this);
         projectHelper = new plugin_projectHelper(this);
         searchProvider = new IndexedSearchProvider(this);
+        renamer = new Renamer(this);
     }
 
     Editor() {
@@ -105,16 +115,19 @@ class Editor {
         ui.statusBar.add(statusBarPanel.getView(),BorderLayout.WEST);
 
         //============================= : Load Windows : ========================
-
+        loadedWindows.add(toolSet);
+        loadedWindows.add(project_loader);
+        loadedWindows.add(mod_devices);
+        loadedWindows.add(compiler);
         loadedWindows.add(mainEditor);
         loadedWindows.add(fileTree);
         loadedWindows.add(logcat);
         loadedWindows.add(javaView);
         //loadedWindows.add(logwindow);
         loadedWindows.add(functionsBrowser);
-        loadedWindows.add(apkUtils);
         loadedWindows.add(projectHelper);
         loadedWindows.add(searchProvider);
+        loadedWindows.add(renamer);
 
         for (I_Window cls:loadedWindows) {
             if(cls.getWindowName() != null) { //just plugins for other works.
@@ -126,27 +139,21 @@ class Editor {
 
 
 
-        mainEditor.tabbedFileEditor.addFile("Welcome","This is AMod Studio v3\nAuthor: ManojBhakarPCM");
+        mainEditor.tabbedFileEditor.addFile("Welcome","This is AMod Studio v3\nAuthor: ManojBhakarPCM\nCTRL+ R(Rename) , B(Navigate), F(Find)");
         //SwingUtilities.invokeLater(() -> apkUtils.getDevices());
-        settingChanged(null,"init",null,null);
+        settingChanged("base_load",null,null);
+        settingChanged("init",null,null);
         ui.f.setVisible(true);
-        settingChanged(null,"init2",null,null);
-        settingChanged(null,"init3",null,null);
+        settingChanged("init2",null,null);
+        settingChanged("init3",null,null);
 
-
+        indexer = Indexer.getInstance();
+        indexer.Init(vars.get("project"));
 
     }
-    protected JComponent makeTextPanel(String text) {
-        JPanel panel = new JPanel(false);
-        JLabel filler = new JLabel(text);
-        filler.setHorizontalAlignment(JLabel.CENTER);
-        panel.setLayout(new GridLayout(1, 1));
-        panel.add(filler);
-        return panel;
-    }
 
-    public void settingChanged(I_Window window,String a,String b,Object c){
-        System.out.println(I_Window.class.getName() + ": SETTING CHANGED:" + a + " : " + b);
+    public void settingChanged(String a, String b, Object c){
+        System.out.println(I_Window.class.getName() + " fired Event  [" + a + "] : " + b);
         for (I_Window cls:loadedWindows) {
             cls.onSettingChanged(a,b,c);
         }

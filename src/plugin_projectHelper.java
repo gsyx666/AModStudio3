@@ -2,14 +2,8 @@ import mbpcm.ui.I_Window;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.List;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class plugin_projectHelper implements I_Window {
     Editor editor_;
@@ -52,7 +46,7 @@ public class plugin_projectHelper implements I_Window {
             packageSet.clear();
             pkgs.removeAllItems();
             basepath = b;
-            System.out.println("Project Loaded *******************");
+            //System.out.println("Project Loaded *******************");
             listPackages(b + "\\smali");
             listPackages(b + "\\smali_classes2");
             list = new ArrayList<String>(packageSet);
@@ -70,7 +64,7 @@ public class plugin_projectHelper implements I_Window {
                     if(!new File(pkgFullPath).exists()){
                         pkgFullPath = basepath + "\\smali_classes2\\" + sel_item.replace(".","\\");
                     }
-                    editor_.settingChanged(null, "select_tree_path", pkgFullPath, null);
+                    editor_.settingChanged("select_tree_path", pkgFullPath, null);
                 }
             });
         }else{

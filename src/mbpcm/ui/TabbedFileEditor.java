@@ -4,19 +4,19 @@ import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
 import mbpcm.customViews.RModernScrollPane;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
-import org.fife.ui.rtextarea.RTextScrollPane;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
 import org.fife.ui.rtextarea.SearchResult;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static javax.swing.Box.createHorizontalStrut;
 import static mbpcm.ui.uiUtils.*;
@@ -144,6 +145,20 @@ public class TabbedFileEditor extends JTabbedPane {
             );
 
         }
+
+        rSyntaxTextArea.registerKeyboardAction(e->{
+            //get selected text and send to _tabbedPane_action
+            String selection = getSelectionType(rSyntaxTextArea.getText(),rSyntaxTextArea.getSelectionStart(),rSyntaxTextArea.getSelectionEnd());
+            _tabbedPaneAction.onAction("action_navigate",selection);
+        },KeyStroke.getKeyStroke(KeyEvent.VK_B,InputEvent.CTRL_DOWN_MASK),JComponent.WHEN_FOCUSED);
+
+        rSyntaxTextArea.registerKeyboardAction(e->{
+            //get selected text and send to _tabbedPane_action
+            String selection = getSelectionType(rSyntaxTextArea.getText(),rSyntaxTextArea.getSelectionStart(),rSyntaxTextArea.getSelectionEnd());
+            _tabbedPaneAction.onAction("action_rename",selection);
+        },KeyStroke.getKeyStroke(KeyEvent.VK_R,InputEvent.CTRL_DOWN_MASK),JComponent.WHEN_FOCUSED);
+
+
         rSyntaxTextArea.setFont(font);
         RModernScrollPane rTextScrollPane = new RModernScrollPane(rSyntaxTextArea);
         rTextScrollPane.setLineNumbersEnabled(true);
@@ -174,6 +189,7 @@ public class TabbedFileEditor extends JTabbedPane {
                 KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK) ,
                 JComponent.WHEN_FOCUSED
         );
+
 
 
         this.add(filepath,tabContentPanel);
@@ -246,6 +262,19 @@ public class TabbedFileEditor extends JTabbedPane {
         this.setSelectedIndex(index);
         if(!stringsrc){
             textAreaStringHashMap.put(filepath,rSyntaxTextArea); //add to hash map.
+        }
+    }
+    public void reloadFiles(String[] ar){
+        String data;
+        for(String s:ar){
+            if(textAreaStringHashMap.containsKey(s)){
+                try {
+                    data = Files.readString(Paths.get(s));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                textAreaStringHashMap.get(s).setText(data);
+            }
         }
     }
     private Icon getFileIcon(String name){
@@ -520,5 +549,63 @@ public class TabbedFileEditor extends JTabbedPane {
         if (type == null) {
             return false;
         } else return !type.startsWith("text");
+    }
+    private String getSelectionType(String data,int sel_start,int sel_end){
+        //get the line number. and check if multiline not selected. + check if selection length > 0
+        int chrNo = 0;
+        String selectedText = "";
+        selectedText = data.substring(sel_start,sel_end);
+        System.out.println("Selected text : " + selectedText );
+        String[] lines = data.split("\r\n");
+        for (String line : lines) {
+            chrNo += line.length() + 2;
+            if (chrNo > sel_start) {
+                //this is the line. let's confirm.
+                if (!line.contains(selectedText)) {
+                    System.out.println("Algorithm failed : getSelectionType or Multiline text");
+                    System.out.println(line);
+                    return "";
+                }
+                //FIND CLASS NAME OF CURRENT FILE
+                Pattern pattern_api = Pattern.compile("\\.class(.*)\\s+(L.*;)");
+                Matcher matcher_api = pattern_api.matcher(data);
+                String className = "";
+                while (matcher_api.find()) {
+                    className = matcher_api.group(2);
+                }
+
+                //FIND IF DEFINITION IS ON CLICKED LINE
+                if (line.trim().startsWith(".method")) {
+                    return className + "->" + selectedText + "(";
+                } else if (line.trim().startsWith(".field")) {
+                    return className + "->" + selectedText + ":";
+                } else if (line.trim().startsWith(".class")) {
+                    return className;
+                }
+
+                //just find space|comma to left, and find new line|(|: to the right for get text between it.
+                int S = 0;
+                int LineStart = chrNo - line.length() - 2;
+                for (int i = sel_start; i > LineStart; i--) {
+                    char c = data.charAt(i);
+                    if (c == ' ' || c == ',') {
+                        S = i;
+                        break;
+                    }
+                }
+                int E = 0;
+                for (int i = sel_end; i < chrNo; i++) {
+                    char c = data.charAt(i);
+                    if (c == '\r' || c == '(' || c == ':') {
+                        E = i;
+                        break;
+                    }
+                }
+                String text = data.substring(S+1, E+1);
+                System.out.println(text);
+                return text;
+            }
+        }
+        return "";
     }
 }

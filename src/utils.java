@@ -400,4 +400,39 @@ public class utils {
             return null;
         }
     }
+    public static JFrame createBasicWindow(String title, double heightfactor, double widthfactor){
+        JFrame f = new JFrame(title);
+        f.getContentPane().setLayout(new BoxLayout(f.getContentPane(),BoxLayout.Y_AXIS));
+        Rectangle gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        double width = gd.getWidth()*widthfactor;
+        double height = gd.getHeight()*heightfactor;
+        f.setSize((int)width, (int)height);
+        f.setLocationRelativeTo(null); //center screen
+        //f.setVisible(true);
+        f.setState(JFrame.MAXIMIZED_BOTH); //start Maximized
+        return f;
+    }
+    public static String ClassPathToFilePath(String projpath,String classPath){
+        classPath = utils.removeLastChar(classPath,';');
+        classPath = classPath.substring(1);
+        classPath = classPath.replace("/","\\");
+        String fullpath = projpath + "\\smali\\" + classPath + ".smali";
+        if(new File(fullpath).exists()){
+            return fullpath;
+        }else{
+            for(int n=2;n<20;n++) {
+                String smaliPath = projpath + "\\smali_classes" + n;
+                if(!new File(smaliPath).exists()){
+                    return null; //no such class exists.
+                }else {
+                    fullpath = smaliPath + "\\" + classPath + ".smali";
+                    if(new File(fullpath).exists()){
+                        return fullpath;
+                    }
+                }
+            }
+        }
+        System.out.println("class doesnt exists in 20 dex files.. is apk is that huge ?");
+        return null; //limit crossed. (will never happened)
+    }
 }

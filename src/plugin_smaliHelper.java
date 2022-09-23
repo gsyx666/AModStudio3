@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class plugin_smaliHelper implements I_Window {
     Editor editor_;
     boolean lock = false;
-    JComboBox<String> methods;
+    JComboBox<String> methods = new JComboBox<>();
     HashMap<String,Integer> nameLocationMap = new HashMap<>();
     plugin_smaliHelper(Editor editor){
         editor_ = editor;
@@ -42,7 +42,6 @@ public class plugin_smaliHelper implements I_Window {
         if(a.equals("file_changed") || a.equals("file_saved")){
             toolbar_addFunctionList(b);
         }else if(a.equals("init")){
-            methods = new JComboBox<>();
             methods.setMaximumSize(new Dimension(200,30));
             editor_.toolBar.add(methods);
             methods.addActionListener(e -> {
@@ -50,7 +49,7 @@ public class plugin_smaliHelper implements I_Window {
                     String sel_item = (String) methods.getSelectedItem();
                     int pos = nameLocationMap.get(sel_item);
                     //System.out.println("Action Performed");
-                    editor_.settingChanged(null, "tabbed_editor_goto_line", null, pos);
+                    editor_.settingChanged("tabbed_editor_goto_line", null, pos);
                 }
             });
         }else{
@@ -63,7 +62,7 @@ public class plugin_smaliHelper implements I_Window {
         methods.removeAllItems();
         try {
             String fileContent = Files.readString(Paths.get(filepath));
-            System.out.println("Function Browser Called");
+            //System.out.println("Function Browser Called");
             Pattern pattern = Pattern.compile(".method\\s+(.*)\\s+(.*?)\\((.*?)\\)(L(.*?);|[A-Z]{1})");
             Matcher matcher = pattern.matcher(fileContent);
             while(matcher.find()){

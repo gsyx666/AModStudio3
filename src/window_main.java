@@ -4,16 +4,16 @@ import mbpcm.ui.TabbedFileEditor;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class window_main implements I_Window {
     TabbedFileEditor tabbedFileEditor;
     JToggleButton toggleMain;
     JButton focus;
+    Editor editor_;
     window_main(Editor editor){
+        editor_ = editor;
         tabbedFileEditor = new TabbedFileEditor((action, data) -> {
-            editor.settingChanged(null,action,(String)data,null);
+            editor.settingChanged(action,(String)data,null);
             editor.vars.put(action,(String) data);
         });
         toggleMain = ManojUI.getVerticalButton("Editor",true);
@@ -55,6 +55,34 @@ public class window_main implements I_Window {
             String filepath = tabbedFileEditor.getSelectedFilePath();
             RSyntaxTextArea rSyntaxTextArea = tabbedFileEditor.getTextAreaByFilePath(filepath);
             rSyntaxTextArea.setCaretPosition((int)c);
+        }else if(a.equals("rsta_get_selected_text")){
+            String filepath = tabbedFileEditor.getSelectedFilePath();
+            RSyntaxTextArea rSyntaxTextArea = tabbedFileEditor.getTextAreaByFilePath(filepath);
+            int[] selectionPositions = new int[2];
+            selectionPositions[0] = rSyntaxTextArea.getSelectionStart();
+            selectionPositions[1] = rSyntaxTextArea.getSelectionEnd();
+            editor_.settingChanged("rsta_selected_text",filepath,selectionPositions);
+        }else if(a.equals("reload_files")){
+            String[] changedFiles = (String[])c;
+            tabbedFileEditor.reloadFiles(changedFiles);
+            String filepath = tabbedFileEditor.getSelectedFilePath();
+            // if contains
+            editor_.settingChanged("file_changed",filepath,null);
+        }else if(a.equals("action_navigate")){
+            String classPath;
+            if(b.contains("->")){
+                String[] ar = b.split("->");
+                classPath = ar[0];
+                String method = ar[1];
+            }else{
+                classPath = b;
+            }
+            String fpath = utils.ClassPathToFilePath(editor_.vars.get("project"),classPath);
+            if(fpath!=null){
+                editor_.settingChanged("file_opened",fpath,null);
+            }else{
+                System.out.println("path not found for :" + b);
+            }
         }
     }
 }

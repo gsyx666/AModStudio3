@@ -9,14 +9,11 @@ import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Objects;
 
 public class window_fileTree implements I_Window {
     Editor editor;
@@ -26,10 +23,10 @@ public class window_fileTree implements I_Window {
     ModernScrollPane spFileTree;
     JPanel mainPanel = new JPanel(new BorderLayout());
     JPanel topbar = new JPanel();
-    static Icon smali = new SmoothIcon(utils.getImageFromRes("fileicons/smali.png"),16,16) ;
-    static Icon yaml = new SmoothIcon(utils.getImageFromRes("fileicons/yml.png"),16,16) ;
-    static Icon xml = new SmoothIcon(utils.getImageFromRes("fileicons/xml.png"),16,16) ;
-    static Icon image = new SmoothIcon(utils.getImageFromRes("fileicons/image.png"),16,16) ;
+    static Icon smali = new SmoothIcon(Objects.requireNonNull(utils.getImageFromRes("fileicons/smali.png")),16,16) ;
+    static Icon yaml = new SmoothIcon(Objects.requireNonNull(utils.getImageFromRes("fileicons/yml.png")),16,16) ;
+    static Icon xml = new SmoothIcon(Objects.requireNonNull(utils.getImageFromRes("fileicons/xml.png")),16,16) ;
+    static Icon image = new SmoothIcon(Objects.requireNonNull(utils.getImageFromRes("fileicons/image.png")),16,16) ;
     window_fileTree(Editor editor1, TabbedFileEditor _tabbedFileEditor){
         editor = editor1;
         tabbedFileEditor = _tabbedFileEditor;
@@ -38,8 +35,8 @@ public class window_fileTree implements I_Window {
         JMenuItem menuItemSearch = new JMenuItem("Search Here");
         JMenuItem menuItemExplore = new JMenuItem("Open in Explore");
         menuItemSearch.addActionListener(e -> {
-            editor.settingChanged(this,"search_win_show",getLastSelectedPath(),null);
-            System.out.println(getLastSelectedPath());
+            editor.settingChanged("search_win_show",getLastSelectedPath(),null);
+            //System.out.println(getLastSelectedPath());
         });
 
         contextMenu.add(menuItemSearch);
@@ -58,7 +55,7 @@ public class window_fileTree implements I_Window {
                     File file = (File) fileTree.getLastSelectedPathComponent();
                     if(file!=null && file.isFile()) {
                         //tabbedFileEditor.addFile(file.getAbsolutePath());
-                        editor.settingChanged(null,"file_opened",file.getAbsolutePath(),null);
+                        editor.settingChanged("file_opened",file.getAbsolutePath(),null);
                     }
                 }
             }
@@ -102,21 +99,21 @@ public class window_fileTree implements I_Window {
 
     @Override
     public void onSettingChanged(String a, String b, Object c) {
-        if(a.equals("app_decompiled")){
-            fileTree.setModel(new FileSystemModel(new File(b)));
-            editor.ui.f.setTitle(editor.getVersion() + " : " + b);
-        }else if(a.equals("select_tree_path")){
-            gotoPath(b);
-        }else if(a.equals("project_loaded")){
-           fileTree.setModel(new FileSystemModel(new File(b)));
-           loadProjectAndHighlight(b,c);
-        }else if(a.equals("file_changed")){
-            gotoPath(b);
+        switch (a) {
+            case "app_decompiled" -> {
+                fileTree.setModel(new FileSystemModel(new File(b)));
+                editor.ui.f.setTitle(editor.getVersion() + " : " + b);
+            }
+            case "select_tree_path", "file_changed" -> gotoPath(b);
+            case "project_loaded" -> {
+                fileTree.setModel(new FileSystemModel(new File(b)));
+                loadProjectAndHighlight(b, c);
+            }
+            case "file_tree_reload" -> fileTree.revalidate();
         }
     }
     void loadProjectAndHighlight(String b,Object c){
         String[] data = (String[]) c;
-        String packageName = data[0];
         String mainClass = data[1];
         String mainClassPath = b + "\\smali\\" + mainClass.replace(".","\\") + ".smali";
         if(!new File(mainClassPath).exists()){
@@ -124,13 +121,10 @@ public class window_fileTree implements I_Window {
         }
         gotoPath(mainClassPath); // highlighted the tree.
         //System.out.println(mainClassPath);
-        editor.settingChanged(null,"file_opened",mainClassPath,null); //opened in editor.
+        editor.settingChanged("file_opened",mainClassPath,null); //opened in editor.
 
     }
     static class CustomIconRenderer extends DefaultTreeCellRenderer {
-       // @Serial
-        //private static final long serialVersionUID = 967937360839244309L;
-
         public CustomIconRenderer(){
         }
 
@@ -164,7 +158,7 @@ public class window_fileTree implements I_Window {
         for(String p:ar){
             totalPath = totalPath + "\\" + p;
             filePaths.add(new File(totalPath));
-            System.out.println(totalPath);
+            //System.out.println(totalPath);
         }
 
         //File[] testpath = new File[]{(File)fileTree.getModel().getRoot(),new File("H:\\splitApks\\Garuda [v4.0.7]-split\\base\\smali"),new File("H:\\splitApks\\Garuda [v4.0.7]-split\\base\\smali\\android"),new File("H:\\splitApks\\Garuda [v4.0.7]-split\\base\\smali\\android\\support")};
@@ -176,6 +170,7 @@ public class window_fileTree implements I_Window {
         TreePath pathh = fileTree.getSelectionPath();
         if (pathh == null) return;
         Rectangle bounds = fileTree.getPathBounds(pathh);
+        assert bounds != null;
         int oldHeight = bounds.height;
         // set the height to the visible height to force the node to top
         bounds.height = fileTree.getVisibleRect().height;
